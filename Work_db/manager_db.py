@@ -1,10 +1,10 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
 #Менеджер для работы с базами данных, принимает сообщение от сервера и записывает его в базу данных
-from Word_db import Events
-from Word_db import Event_type
-from Word_db import Users
-from Word_db import Auth
+from Work_db import Events
+from Work_db import Event_type
+from Work_db import Users
+from Work_db import Auth
 
 class Manager():
     def __init__(self):
