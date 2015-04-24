@@ -1,12 +1,13 @@
 import hashlib
-def gethash(str):
-    """возвращает хеш(sha1) полученный из строки"""
-    h = hashlib.sha1()
-    str = str.encode("utf8")
-    h.update(str)
-    return h.hexdigest()
+# -*- coding:utf-8 -*-
+# def gethash(str):
+#     #
+#     h = hashlib.sha1()
+#     str = str.encode("utf8")
+#     h.update(str)
+#     return h.hexdigest()
 # def del_row(self,sing):
-     #     """удаление строки по признаку"""
+     #     #удаление
      #     field = sing[0]
      #     value = sing[1]
      #     str  = "delete from events where "+field+"='"+value+"';"
@@ -46,6 +47,11 @@ def gethash(str):
      #         row = None
      #
      #     return row
+from libxml2 import libxmlError
 
-
+import sys
+import  platform
+print("system:",platform.system())
+print("distribut:",platform.dist())
+print("version:",platform.version())
 
