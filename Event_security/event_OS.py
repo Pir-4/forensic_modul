@@ -20,7 +20,12 @@ class Event_OS():
         """получем сообщение в формате cef"""
         self._cef = self._system + '|' + self._dist[0]+self._dist[1]+'|'+self._version +'|'
         return  self._cef
+    def open_log_auth(self):
+        """открываем лог файл auth"""
+        auth = open('/var/log/auth.log','r')
+        print(auth)
 
 
 event = Event_OS()
 print(event.get_cef())
+event.open_log_auth()
