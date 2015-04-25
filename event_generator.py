@@ -1,4 +1,5 @@
 __author__ = 'Valentin'
+# -*- coding:utf-8 -*-
 # генерирует события в формате CEF
 import time
 
@@ -25,3 +26,5 @@ def get_OS_ip():
     cef +="login=Sweetie result=success ip=192.168.1.1"
     cef = get_time()+" host "+ cef
     return cef
+
+print(get_time())
