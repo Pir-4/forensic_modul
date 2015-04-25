@@ -60,17 +60,32 @@ class Event_OS():
             path = "/home/valentin/projects/git_projects/forensic_modul/Event_security/auth_test.log"
             auth = open(path,'r')
             other = auth.readlines()
-            auth.close();
+            auth.close()
 
-            type = self.get_type(other[0])
-            type = str(6496)
-            tmp = []
-            print(st)
+            #образуем список всех событий, которые имеют (сессию [number])
+            d = {}
             for line in other:
-                if type== self.get_type(line):
-                    tmp.append(line)
+                type = self.get_type(line)
+                if d.get(type,None) == None:
+                    d[type] = 1
+                else:
+                    d[type] += 1
 
-            print(self.parsing_msg_su(tmp))
+            key = d.keys()
+
+            groups = []
+            for type in key:
+                i = d.get(type,0)
+                tmp = []
+                for line in other:
+                    if type == self.get_type(line) and i != 0:
+                        tmp.append(line)
+                        i -= 1
+                    elif i == 0:
+                        break
+                groups.append(tmp)
+            for line in groups:
+                print(self.parsing_msg_su(line))
 
     def get_date(self,msg):
         """возвращает дату из поступившего сообщения"""
@@ -82,7 +97,13 @@ class Event_OS():
 
     def get_type(self,msg):
         """возращяет сесии сообщения"""
-        st = msg.find("[",0,len(msg))+1
+        st = msg.find("[",0,len(msg))
+        point = msg.find(":",len(self.get_date(msg)),len(msg))
+
+        if st ==-1 or st > point:
+            return None
+
+        st += 1
         end = msg.find("]",st,len(msg))
         return msg[st:end]
 
