@@ -11,6 +11,9 @@ class Event_OS():
     def __init__(self):
         self._system = str(platform.system())
         self._info_system = self.info_sistem()
+        self._dist = {}
+        self.last_rec = ""
+        self.last_size = 0
 
     def info_sistem(self):
         """возврящает вендора,"""
@@ -24,7 +27,7 @@ class Event_OS():
             tmp.append("Microsoft")
             device = platform.platform()
             st = len(self._system)+1
-            point = str.find("-",st,len(device))
+            point = device.find("-",st,len(device))
             tmp.append(device[:point])
             tmp.append(str(platform.version()))
         else:
@@ -58,39 +61,50 @@ class Event_OS():
         if self._system == "Linux":
             """открываем лог файл auth (пока свой,тестовый)"""
             path = "/home/valentin/projects/git_projects/forensic_modul/Event_security/auth_test.log"
-            auth = open(path,'r')
-            other = auth.readlines()
-            auth.close()
+        else:
+            path = "C:\\Users\\Valentin\\PycharmProjects\\forensic_modul\\auth_test.txt"
+        auth = open(path,'r')
+        self.other = auth.readlines()
+        auth.close()
+        self.last_event("",0,'r') # считываем последнее событие,которое запомнили
+        self.control_event()
 
-            #образуем список всех событий, которые имеют (сессию [number])
-            d = {}
-            for line in other:
-                type = self.get_type(line)
-                if d.get(type,None) == None:
-                    d[type] = 1
-                else:
-                    d[type] += 1
+    def formation_dist(self,msgs):
+        """Составляем набор имеющихся сесиий индетификации событий"""
+        for line in msgs:
+            type = self.get_type(line)
+            if self._dist.get(type,None) == None:
+                self._dist[type] = 1
+            else:
+                self._dist[type] += 1
 
-            key = d.keys()
-            groups = []
-            for type in key:
-                i = d.get(type,0)
-                tmp = []
-                for line in other:
-                    if type == self.get_type(line) and i != 0:
-                        tmp.append(line)
-                        i -= 1
-                    elif i == 0:
-                        break
-                groups.append(tmp)
-            for line in groups:
-                tmp = self.parsing_msg_su(line)
+    def formation_group(self,msgs):
+        """возвраящает список сгрупированных сообщений по их номеру сессии"""
+        key = self._dist.keys()
+        groups = []
+        for type in key:
+            i = self._dist.get(type,0)
+            tmp = []
+            for line in msgs:
+                if type == self.get_type(line) and i != 0:
+                    tmp.append(line)
+                    i -= 1
+                elif i == 0:
+                    break
+            groups.append(tmp)
+        return groups
+
+    def formation_event(self,groups):
+        """форимирование из поступивших сгрупированных событий в инифицированный ввид"""
+        self.events = []
+        for line in groups:
+            tmp = self.parsing_msg_su(line)
+            if tmp != None:
+                self.events.append(tmp)
+            else:
+                tmp = self.parsing_msg_kdm(line)
                 if tmp != None:
-                    # print(tmp)
-                    tmp[0]
-                else:
-                    tmp = self.parsing_msg_kdm(line)
-                    if tmp != None: print(tmp)
+                    self.events.append(tmp)
 
     def get_date(self,msg):
         """возвращает дату из поступившего сообщения"""
@@ -190,6 +204,57 @@ class Event_OS():
                 else:
                     tmp.append("result=FAILED")
         return tmp
+
+    def last_event(self,line,size,rw):
+        """Записываем в файл последнию строку считаную в прошлый раз"""
+        if self._system == "Windows": path = "C:\\Users\\Valentin\\PycharmProjects\\forensic_modul\\auth_last.txt"
+        if self._system == "Linux": path = "/home/valentin/projects/git_projects/forensic_modul/Event_security/auth_last.txt"
+
+        auth = open(path,rw)
+        if rw == 'w':
+            line = str(size)+" "+line
+            auth.write(line)
+            auth.close()
+        elif rw == 'r':
+            tmp = auth.readline()
+            if tmp == "":
+                self.last_rec = ""
+                self.last_size = 0
+            else:
+                st = tmp.find(' ',0,len(tmp))
+                self.last_size = int(tmp[:st])
+                self.last_rec = tmp[st+1:]
+
+    def control_event(self):
+        """смотрит, был ли пополнен файл новыви событиями"""
+        if self.last_rec == "" or len(self.other) < self.last_size:
+            """Если произошел первый запуск или файл auth переполнился и наался ввести заново"""
+            self.formation_dist(self.other) #образуем список всех событий, которые имеют (сессию [number])
+            groups = self.formation_group(self.other)
+            self.formation_event(groups)
+            self.last_event(self.other[len(self.other)-1],len(self.other),'w')
+
+        elif self.other[len(self.other)-1] == self.last_rec:
+            """Если новых событий не произошло, то просто выходим"""
+            print("====")
+            return
+        elif self.other[len(self.other)-1] != self.last_rec:
+            """Если имеем новый бок(и) событий"""
+            if self._system == "Windows": self.last_rec+='\n'
+            flag = False
+            ev = []
+            for line in self.other:
+                if line == self.last_rec:
+                    flag = True
+                if flag and line != self.last_rec:
+                    ev.append(line)
+
+            # print(ev)
+            self.formation_dist(ev) #образуем список всех событий, которые имеют (сессию [number])
+            groups = self.formation_group(ev)
+            self.formation_event(groups)
+            self.last_event(ev[len(ev)-1],len(self.other),'w')
+
 
 
 event = Event_OS()
