@@ -131,7 +131,7 @@ class Event_OS():
     def parsing_msg_su(self,gmsg):
         """Разбираем блок логов (для su) (сгрупированных) на составляющие время,на какие права претндвал,
         кто щапрашивал,реультат"""
-
+        if len(gmsg) == 0: return  None
         st =gmsg[0].find("su",0,len(gmsg[0]))
         if st == -1: #сообщения формата su или нет
             return None
@@ -202,6 +202,8 @@ class Event_OS():
 
     def parsing_msg_kdm(self,gmsg):
         """Разбираем сообщаня, образоываные привходе в систему: дата,кто,результат"""
+        if len(gmsg) == 0: return None
+
         st =gmsg[0].find("kdm:",0,len(gmsg[0]))
         if st == -1: #сообщения формата kdm или нет
             return None
@@ -275,6 +277,7 @@ class Event_OS():
             return
         elif self.other[len(self.other)-1] != self.last_rec:
             """Если имеем новый бок(и) событий"""
+            self.tmp_dist() #потом урать
             if self.last_rec.find("\n",0,len(self.last_rec)) == -1:
                 self.last_rec+='\n'
             flag = False
@@ -285,19 +288,13 @@ class Event_OS():
                 if flag and line != self.last_rec:
                     ev.append(line)
 
-            # print(ev)
-
             self.formation_dist(ev) #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(ev)
-            self.tmp_dist()
-            # print(groups)
             self.formation_event(groups)
-
-            # self.last_event(ev[len(ev)-1],len(self.other),'w')
+            self.last_event(ev[len(ev)-1],len(self.other),'w')
 
     def tmp_dist(self):
         self.events.append([3715, 'Apr 27 20:22:12', 'guser=root', 'user=valentin', 'result=Successful'])
-        self.events.append([3718, 'Apr 27 20:22:12', 'guser=root', 'user=valentin', 'result=Successful'])
         self._dist = {7722: 4, 3130: 3, 3942: 1, 10581: 4,6496: 4,
                      3699: 4, 4086: 2, 7089: 4, 3133: 3, 5027: 4, 5527: 2,
                      3081: 2, 9277: 1, 7380: 4, 3099: 3, 5647: 2, 3006: 3,
