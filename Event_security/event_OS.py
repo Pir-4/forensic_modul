@@ -12,6 +12,7 @@ class Event_OS():
         self._system = str(platform.system())
         self._info_system = self.info_sistem()
         self._dist = {}
+        self.events = []
         self.last_rec = ""
         self.last_size = 0
 
@@ -71,12 +72,14 @@ class Event_OS():
 
     def formation_dist(self,msgs):
         """Составляем набор имеющихся сесиий индетификации событий"""
+
         for line in msgs:
             type = self.get_type(line)
             if self._dist.get(type,None) == None:
                 self._dist[type] = 1
             else:
                 self._dist[type] += 1
+
 
     def formation_group(self,msgs):
         """возвраящает список сгрупированных сообщений по их номеру сессии"""
@@ -96,7 +99,6 @@ class Event_OS():
 
     def formation_event(self,groups):
         """форимирование из поступивших сгрупированных событий в инифицированный ввид"""
-        self.events = []
         for line in groups:
             tmp = self.parsing_msg_su(line)
             if tmp != None:
@@ -122,46 +124,74 @@ class Event_OS():
         stri = msg[st:end]
         try:
             value = int(stri)
-            return str(value)
+            return value
         except:
             return None
 
     def parsing_msg_su(self,gmsg):
         """Разбираем блок логов (для su) (сгрупированных) на составляющие время,на какие права претндвал,
         кто щапрашивал,реультат"""
+
         st =gmsg[0].find("su",0,len(gmsg[0]))
         if st == -1: #сообщения формата su или нет
             return None
 
-        tmp = []
-        msg =""
-        msgc=""
+        #провереят и записывает,если соообщение о конце сесии записалось позже основного блока
+        if len(gmsg) == 1:
+            type = self.get_type(gmsg[0])
+            tmp = self.parsing_one_su(gmsg[0])
+            ev = -1
+            for i in range(0,len(self.events)):
+                if self.events[i][0] == type:
+                    ev = i
+                    break
+            if ev == -1: return None
+            for elem in tmp:
+                self.events[ev].append(elem)
+            return
 
+        #это часть выполняется, если у нас не одно, а целая группа сообщений
+        mes = []
         for line in gmsg:
-            if line.find("su for",0,len(line)) != -1:
-                msg = line
-            if line.find("session closed",0,len(line)) != -1:
-                msgc = line
+            tmp = self.parsing_one_su(line)
+            if tmp != None:
+                for elem in tmp:
+                    mes.append(elem)
+        return mes
 
-        if msg=="": return None
+    def parsing_one_su(self,o_msg):
+        """парсит одну строку"""
+        tmp = []
+        msg = ""
+        msgc = ""
 
-        tmp.append(self.get_date(msg)) #записываем дату сообщения
+        if o_msg.find("su for",0,len(o_msg)) != -1:
+            msg = o_msg
+        if o_msg.find("session closed",0,len(o_msg)) != -1:
+            msgc = o_msg
 
-        # находим на на кого притендовал пользователь (root-а)
-        st = msg.find("for",0,len(msg))+4
-        end = msg.find(" ",st,len(msg))
-        tmp.append("guser="+msg[st:end])
+        if msg=="" and msgc=="": return None
 
-        #находим какой пользователь претендовал на поуления прав
-        st = msg.find("by",end,len(msg))+3
-        end = msg.find(" ",st,len(msg))
-        tmp.append("user="+msg[st:end])
+        if msg != "":
+            tmp.append(self.get_type(msg))
+            tmp.append(self.get_date(msg)) #записываем дату сообщения
 
-        #проверка на успешность входа
-        if -1 != msg.find("Successful",0,len(msg)):
-            tmp.append("result=Successful")
-        elif -1 != msg.find("FAILED ",0,len(msg)):
-            tmp.append("result=FAILED")
+            # находим на на кого притендовал пользователь (root-а)
+            st = msg.find("for",0,len(msg))+4
+            end = msg.find(" ",st,len(msg))
+            tmp.append("guser="+msg[st:end])
+
+            #находим какой пользователь претендовал на поуления прав
+            st = msg.find("by",end,len(msg))+3
+            end = msg.find(" ",st,len(msg))
+            tmp.append("user="+msg[st:end])
+
+            #проверка на успешность входа
+            if -1 != msg.find("Successful",0,len(msg)):
+                tmp.append("result=Successful")
+            elif -1 != msg.find("FAILED ",0,len(msg)):
+                tmp.append("result=FAILED")
+
 
         # если сессия был завершина то ствим пометку в виде времени и того что она была завершина
         if  msgc != "":
@@ -185,6 +215,7 @@ class Event_OS():
                 res= True
 
             if res != None:
+                tmp.append(self.get_type(line))
                 tmp.append(self.get_date(line))
 
                 st = line.find("ruser",0,len(line))+5
@@ -221,9 +252,13 @@ class Event_OS():
                 self.last_rec = ""
                 self.last_size = 0
             else:
-                st = tmp.find(' ',0,len(tmp))
-                self.last_size = int(tmp[:st])
-                self.last_rec = tmp[st+1:]
+                try:
+                    st = tmp.find(' ',0,len(tmp))
+                    self.last_size = int(tmp[:st])
+                    self.last_rec = tmp[st+1:]
+                except ValueError:
+                    self.last_rec = ""
+                    self.last_size = 0
 
     def control_event(self):
         """смотрит, был ли пополнен файл новыви событиями"""
@@ -240,7 +275,8 @@ class Event_OS():
             return
         elif self.other[len(self.other)-1] != self.last_rec:
             """Если имеем новый бок(и) событий"""
-            if self._system == "Windows": self.last_rec+='\n'
+            if self.last_rec.find("\n",0,len(self.last_rec)) == -1:
+                self.last_rec+='\n'
             flag = False
             ev = []
             for line in self.other:
@@ -250,10 +286,39 @@ class Event_OS():
                     ev.append(line)
 
             # print(ev)
+
             self.formation_dist(ev) #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(ev)
+            self.tmp_dist()
+            # print(groups)
             self.formation_event(groups)
-            self.last_event(ev[len(ev)-1],len(self.other),'w')
+
+            # self.last_event(ev[len(ev)-1],len(self.other),'w')
+
+    def tmp_dist(self):
+        self.events.append([3715, 'Apr 27 20:22:12', 'guser=root', 'user=valentin', 'result=Successful'])
+        self.events.append([3718, 'Apr 27 20:22:12', 'guser=root', 'user=valentin', 'result=Successful'])
+        self._dist = {7722: 4, 3130: 3, 3942: 1, 10581: 4,6496: 4,
+                     3699: 4, 4086: 2, 7089: 4, 3133: 3, 5027: 4, 5527: 2,
+                     3081: 2, 9277: 1, 7380: 4, 3099: 3, 5647: 2, 3006: 3,
+                     6491: 4, 4556: 1, 3101: 3, 4305: 4, 3941: 1, 4359: 4,
+                     9244: 3, 7028: 2, 5270: 3, 2689: 3, 3144: 5, 11355: 1,
+                     5248: 4, 3147: 3, 3159: 3, 3143: 3, 7398: 3, 7184: 3,
+                     2666: 6, 5322: 3, 17504: 2,5012: 4, 9677: 1, 3761: 1,
+                     4997: 4, 3017: 3, 7405: 4, 5271: 4, 11331: 4,3154: 3,
+                     6479: 4, 4101: 4, 8819: 4, 2991: 3, 12565: 4,2681: 3,
+                     7262: 4, 6497: 4, 12385: 2,12977: 4,6513: 4, 10210: 4,
+                     4046: 1, 6326: 4, 6805: 2, 7285: 4, 2441: 3, 12991: 4,
+                     7175: 3, 7494: 4, 4981: 4, 3138: 3, 5652: 2, 9254: 1,
+                     6314: 4, 7168: 3, 8797: 4, 3801: 2, 8452: 2, 7738: 4,
+                     5196: 2, 9259: 1, 3065: 3, 3140: 3, 4047: 1, 2995: 2,
+                     2674: 3, 3715: 3, 9262: 1, None: 126,11363: 4,2458: 3,
+                     9248: 1, 3550: 2, 5642: 4, 8835: 4, 4996: 4, 3131: 3,
+                     3724: 4, 7129: 4, 3958: 1, 9668: 3, 8095: 1, 2442: 3,
+                     3090: 3, 7401: 3, 11379: 4,13110: 4,3024: 3, 4835: 2,
+                     4375: 4, 4044: 5, 2448: 3, 2453: 3, 2467: 3, 13607: 4,
+                     3708: 4, 2447: 3, 9672: 1, 3141: 7, 11387: 1,3152: 3,
+                     9682: 1, 12291: 4,13045: 4}
 
 
 
@@ -261,3 +326,5 @@ event = Event_OS()
 print(event.get_cef())
 event.rights_root()
 event.open_log_auth()
+for line in event.events:
+    print(line)
