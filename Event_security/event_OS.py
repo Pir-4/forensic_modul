@@ -72,7 +72,6 @@ class Event_OS():
                     d[type] += 1
 
             key = d.keys()
-
             groups = []
             for type in key:
                 i = d.get(type,0)
@@ -85,7 +84,13 @@ class Event_OS():
                         break
                 groups.append(tmp)
             for line in groups:
-                print(self.parsing_msg_su(line))
+                tmp = self.parsing_msg_su(line)
+                if tmp != None:
+                    # print(tmp)
+                    tmp[0]
+                else:
+                    tmp = self.parsing_msg_kdm(line)
+                    if tmp != None: print(tmp)
 
     def get_date(self,msg):
         """возвращает дату из поступившего сообщения"""
@@ -98,53 +103,96 @@ class Event_OS():
     def get_type(self,msg):
         """возращяет сесии сообщения"""
         st = msg.find("[",0,len(msg))
-        point = msg.find(":",len(self.get_date(msg)),len(msg))
-
-        if st ==-1 or st > point:
-            return None
-
         st += 1
         end = msg.find("]",st,len(msg))
-        return msg[st:end]
+        stri = msg[st:end]
+        try:
+            value = int(stri)
+            return str(value)
+        except:
+            return None
 
     def parsing_msg_su(self,gmsg):
         """Разбираем блок логов (для su) (сгрупированных) на составляющие время,на какие права претндвал,
         кто щапрашивал,реультат"""
+        st =gmsg[0].find("su",0,len(gmsg[0]))
+        if st == -1: #сообщения формата su или нет
+            return None
 
         tmp = []
         msg =""
+        msgc=""
+
         for line in gmsg:
             if line.find("su for",0,len(line)) != -1:
                 msg = line
-                break
+            if line.find("session closed",0,len(line)) != -1:
+                msgc = line
 
         if msg=="": return None
 
-        tmp.append(self.get_date(msg))
-        st =msg.find("su",0,len(msg))
+        tmp.append(self.get_date(msg)) #записываем дату сообщения
 
-        if st == -1:
-            return None
-
+        # находим на на кого притендовал пользователь (root-а)
         st = msg.find("for",0,len(msg))+4
         end = msg.find(" ",st,len(msg))
         tmp.append("guser="+msg[st:end])
 
+        #находим какой пользователь претендовал на поуления прав
         st = msg.find("by",end,len(msg))+3
         end = msg.find(" ",st,len(msg))
         tmp.append("user="+msg[st:end])
 
+        #проверка на успешность входа
         if -1 != msg.find("Successful",0,len(msg)):
             tmp.append("result=Successful")
         elif -1 != msg.find("FAILED ",0,len(msg)):
             tmp.append("result=FAILED")
 
+        # если сессия был завершина то ствим пометку в виде времени и того что она была завершина
+        if  msgc != "":
+            tmp.append(self.get_date(msgc))
+            tmp.append("result=close")
+
         return tmp
 
+    def parsing_msg_kdm(self,gmsg):
+        """Разбираем сообщаня, образоываные привходе в систему: дата,кто,результат"""
+        st =gmsg[0].find("kdm:",0,len(gmsg[0]))
+        if st == -1: #сообщения формата kdm или нет
+            return None
+
+        tmp = []
+        for line in gmsg:
+            res = None
+            if line.find("authentication failure;",0,len(line)) != -1:
+                res= False
+            elif line.find("session opened",0,len(line)) != -1:
+                res= True
+
+            if res != None:
+                tmp.append(self.get_date(line))
+
+                st = line.find("ruser",0,len(line))+5
+                if st == -1 : st = 0
+
+                st = line.find("user",st,len(line))+5
+                end = line.find(" ",st,len(line))
+                if end == -1 :
+                    if line.find("\n",st,len(line)) :
+                        end = len(line)-1
+                    else: end= len(line)
+
+                tmp.append("user="+line[st:end])
+
+                if res:
+                    tmp.append("result=Successful")
+                else:
+                    tmp.append("result=FAILED")
+        return tmp
 
 
 event = Event_OS()
 print(event.get_cef())
 event.rights_root()
 event.open_log_auth()
-#Apr 26 01:53:01 2015

@@ -450,3 +450,47 @@ Apr 26 00:23:25 debian su[13045]: - /dev/pts/1 valentin:root
 Apr 26 00:24:03 debian su[13110]: Successful su for root by valentin
 Apr 26 00:24:03 debian su[13110]: + /dev/pts/1 valentin:root
 Apr 26 00:24:03 debian su[13110]: pam_unix(su:session): session opened for user root by valentin(uid=1000)
+Apr 26 01:14:58 debian su[13110]: pam_unix(su:session): session closed for user root
+Apr 26 01:17:01 debian CRON[17504]: pam_unix(cron:session): session opened for user root by (uid=0)
+Apr 26 01:17:01 debian CRON[17504]: pam_unix(cron:session): session closed for user root
+Apr 26 02:03:24 debian su[12991]: pam_unix(su:session): session closed for user root
+Apr 26 02:03:38 debian polkitd(authority=local): Unregistered Authentication Agent for unix-session:/org/freedesktop/ConsoleKit/Session1 (system bus name :1.34, object path /org/kde/PolicyKit1/AuthenticationAgent, locale ru_RU.UTF-8)
+Apr 26 02:03:40 debian kdm: :0[3147]: pam_unix(kdm:session): session closed for user valentin
+Apr 26 02:03:48 debian sshd[3140]: Received signal 15; terminating.
+Apr 26 20:17:10 debian sshd[2441]: Server listening on 0.0.0.0 port 22.
+Apr 26 20:17:10 debian sshd[2441]: Server listening on :: port 22.
+Apr 26 20:17:19 debian sshd[2441]: Received signal 15; terminating.
+Apr 26 20:17:19 debian sshd[3138]: Server listening on 0.0.0.0 port 22.
+Apr 26 20:17:19 debian sshd[3138]: Server listening on :: port 22.
+Apr 26 20:17:48 debian kdm: :0[3154]: pam_unix(kdm:session): session opened for user valentin by (uid=0)
+Apr 26 20:17:48 debian kdm: :0[3154]: pam_ck_connector(kdm:session): nox11 mode, ignoring PAM_TTY :0
+Apr 26 20:18:17 debian su[3708]: Successful su for root by valentin
+Apr 26 20:18:17 debian su[3708]: + /dev/pts/1 valentin:root
+Apr 26 20:18:17 debian su[3708]: pam_unix(su:session): session opened for user root by (uid=1000)
+Apr 26 20:18:17 debian su[3708]: pam_unix(su:session): session closed for user root
+Apr 26 20:18:17 debian su[3724]: Successful su for root by valentin
+Apr 26 20:18:17 debian su[3724]: + /dev/pts/1 valentin:root
+Apr 26 20:18:17 debian su[3724]: pam_unix(su:session): session opened for user root by (uid=1000)
+Apr 26 20:18:43 debian polkitd(authority=local): Registered Authentication Agent for unix-session:/org/freedesktop/ConsoleKit/Session1 (system bus name :1.38 [/usr/lib/kde4/libexec/polkit-kde-authentication-agent-1], object path /org/kde/PolicyKit1/AuthenticationAgent, locale ru_RU.UTF-8)
+Apr 26 20:20:03 debian su[3724]: pam_unix(su:session): session closed for user root
+Apr 26 20:20:14 debian polkitd(authority=local): Operator of unix-session:/org/freedesktop/ConsoleKit/Session1 successfully authenticated as unix-user:valentin to gain ONE-SHOT authorization for action org.kde.kcontrol.kcmclock.save for system-bus-name::1.41 [/usr/bin/kcmshell4 clock] (owned by unix-user:valentin)
+Apr 27 20:20:23 debian polkitd(authority=local): Unregistered Authentication Agent for unix-session:/org/freedesktop/ConsoleKit/Session1 (system bus name :1.38, object path /org/kde/PolicyKit1/AuthenticationAgent, locale ru_RU.UTF-8)
+Apr 27 20:20:23 debian kdm: :0[3154]: pam_unix(kdm:session): session closed for user valentin
+Apr 27 20:20:28 debian sshd[3138]: Received signal 15; terminating.
+Apr 27 20:21:14 debian sshd[2447]: Server listening on 0.0.0.0 port 22.
+Apr 27 20:21:14 debian sshd[2447]: Server listening on :: port 22.
+Apr 27 20:21:22 debian sshd[2447]: Received signal 15; terminating.
+Apr 27 20:21:22 debian sshd[3144]: Server listening on 0.0.0.0 port 22.
+Apr 27 20:21:22 debian sshd[3144]: Server listening on :: port 22.
+Apr 27 20:21:35 debian kdm: :0[3159]: pam_unix(kdm:auth): authentication failure; logname= uid=0 euid=0 tty=:0 ruser= rhost=  user=valentin
+Apr 27 20:21:40 debian kdm: :0[3159]: pam_unix(kdm:session): session opened for user valentin by (uid=0)
+Apr 27 20:21:40 debian kdm: :0[3159]: pam_ck_connector(kdm:session): nox11 mode, ignoring PAM_TTY :0
+Apr 27 20:22:12 debian su[3699]: Successful su for root by valentin
+Apr 27 20:22:12 debian su[3699]: + /dev/pts/1 valentin:root
+Apr 27 20:22:12 debian su[3699]: pam_unix(su:session): session opened for user root by (uid=1000)
+Apr 27 20:22:12 debian su[3699]: pam_unix(su:session): session closed for user root
+Apr 27 20:22:12 debian su[3715]: Successful su for root by valentin
+Apr 27 20:22:12 debian su[3715]: + /dev/pts/1 valentin:root
+Apr 27 20:22:12 debian su[3715]: pam_unix(su:session): session opened for user root by (uid=1000)
+Apr 27 20:22:33 debian polkitd(authority=local): Registered Authentication Agent for unix-session:/org/freedesktop/ConsoleKit/Session1 (system bus name :1.38 [/usr/lib/kde4/libexec/polkit-kde-authentication-agent-1], object path /org/kde/PolicyKit1/AuthenticationAgent, locale ru_RU.UTF-8)
+Apr 27 20:23:42 debian su[3715]: pam_unix(su:session): session closed for user roota
