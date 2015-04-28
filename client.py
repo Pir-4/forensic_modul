@@ -6,7 +6,7 @@ from socket import *
 import event_generator
 
 class Client():
-    def  __init__(self,serverHost= 'localhost',serverPort=13):
+    def  __init__(self,serverHost= 'localhost',serverPort=8080):
         self._sockobj = socket(AF_INET,SOCK_STREAM)
 
         try:
@@ -24,7 +24,7 @@ class Client():
 
     def move_client(self):
         while self.isConnect:
-            data = input("message: ")
+            data = str(input("message: "))
             if data =="1": data = event_generator.get_Antivir()
             elif data == "2": data = event_generator.get_OS()
             elif data == "3": data = event_generator.get_OS_ip()
