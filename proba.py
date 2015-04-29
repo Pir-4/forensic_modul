@@ -49,9 +49,9 @@ import hashlib
      #     return row
 from libxml2 import libxmlError
 
-import sys
-import  platform
-print("system:",platform.system())
-print("distribut:",platform.dist())
-print("version:",platform.version())
+# import sys
+# import  platform
+# print("system:",platform.system())
+# print("distribut:",platform.dist())
+# print("version:",platform.version())
 
