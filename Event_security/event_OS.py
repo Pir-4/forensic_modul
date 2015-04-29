@@ -6,6 +6,7 @@ import sys
 import platform
 import os
 import getpass
+import client
 
 
 class Event_OS():
@@ -16,6 +17,8 @@ class Event_OS():
         self.events = []
         self.last_rec = ""
         self.last_size = 0
+
+        self.client = client.Client()
 
     def info_sistem(self):
         """возвращает информацию о ОС"""
@@ -274,7 +277,7 @@ class Event_OS():
             self.formation_dist(self.other)  #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(self.other)
             self.formation_event(groups)
-            self.last_event(self.other[len(self.other)-1],len(self.other),'w')
+            # self.last_event(self.other[len(self.other)-1],len(self.other),'w')
 
         elif self.other[len(self.other) - 1] == self.last_rec:
             """Если новых событий не произошло, то просто выходим"""
@@ -296,7 +299,7 @@ class Event_OS():
             self.formation_dist(ev)  #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(ev)
             self.formation_event(groups)
-            self.last_event(ev[len(ev)-1],len(self.other),'w')
+            # self.last_event(ev[len(ev)-1],len(self.other),'w')
 
     def toString(self, msg):
         """Переводит входное сообщение в формат строки для дальнейшей пересылки"""
@@ -324,7 +327,12 @@ class Event_OS():
         for line in self.events:
             if line[1] == 'su':
                 if (len(line) == 5 and line[4] == "result=FAILED")or (len(line) == 7):
-                    su.append(line[0])
+
+                    sign = 0
+                    Cflag = 0
+
+                    if line[4] != "result=FAILED":
+                        sign = 1
 
                     msg1 = []
                     msg1.append(line[2])
@@ -338,10 +346,14 @@ class Event_OS():
                         msg2.append(line[1])
                         msg2.append(line[3])
                         msg2.append(line[6])
-                        # print(self.toString(msg2))
+                        Cflag = 1
 
-                    # print(self.toString(msg1))
-                    # print("------------")
+                    flag = None
+                    if sign ==  Cflag:
+                        self.client.send_message(self.toString(msg1))
+                        flag = self.client.recv_message()
+                        if flag :
+                            su.append(line[0])
 
             elif line[1] == "kdm" :
                 for i in range(0,len(line),5):
@@ -350,9 +362,12 @@ class Event_OS():
                     msg.append(line[i+1])
                     msg.append(line[i+3])
                     msg.append(line[i+4])
-                    # print(self.toString(msg))
-                    # print("-----------------")
-                    kdm.append(line[0])
+
+                    self.client.send_message(self.toString(msg1))
+
+                    flag = self.client.recv_message()
+                    if flag :
+                        kdm.append(line[0])
 
 
         self.del_sent_msg(su)
@@ -386,4 +401,7 @@ class Event_OS():
 event = Event_OS()
 event.rights_root()
 event.open_log_auth()
-event.Events()
+if event.client.isConnect:
+    event.Events()
+else:
+    print("not connect")

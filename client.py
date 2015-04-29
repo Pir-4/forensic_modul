@@ -34,6 +34,6 @@ class Client():
     def __del__(self):
         self._sockobj.close()
 
-cli = Client()
-cli.move_client()
+# cli = Client()
+# cli.move_client()
 

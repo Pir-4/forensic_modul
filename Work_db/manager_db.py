@@ -12,13 +12,18 @@ class Manager():
         self._auth = Auth.Auth()
 
     def dispatcher(self,str_cef):
-        list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
 
-        table = self.change_type_event(list_cef[9]) #получаем имя таблицу для дальнейшей работы по типу осбытия
-        event_id,user_id = self.set_event(list_cef)
+        if str_cef.find("CEF:",0,len(str_cef)) == -1: #если прило не cef а событие, то отправлем на преобразование в cef
+            self.event_to_cef(str_cef)
 
-        if table == 'auth':
-            self.set_auth(event_id,user_id,list_cef[12])
+        else:# если пришло cef то записываем данное событие в бд
+            list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
+
+            table = self.change_type_event(list_cef[9]) #получаем имя таблицу для дальнейшей работы по типу осбытия
+            event_id,user_id = self.set_event(list_cef)
+
+            if table == 'auth':
+                self.set_auth(event_id,user_id,list_cef[12])
 
     def parsing_CEF(self,str_cef):
          #Парсинг формата CEF на составляющие
@@ -40,7 +45,7 @@ class Manager():
             if i == 4 or i== 6:
                 tmp.append(int(str_cef[st:end]))
             elif i == 3:
-                tmp.append(float(str_cef[st:end]))
+                tmp.append(str(str_cef[st:end]))
             else:
                 tmp.append(str_cef[st:end])
             st = end+1
@@ -68,7 +73,7 @@ class Manager():
          tmp.append(cef[8])
          tmp.append(cef[9])
         #обработка поля extension, для нахожения логина, если имеется.
-         result = self.find_value('login',cef[12])
+         result = self.find_value('user',cef[12])
          if result == None:
              tmp.append(0)
          else:
@@ -109,11 +114,28 @@ class Manager():
         if result == None:
             list_auth.append("NULL")
         else:
-            if result == "success":
+            if result == "Successful":
                 flag = True
             else:
                 flag = False
             list_auth.append(flag)
-
+        print(list_auth)
         self._auth.set_row(list_auth)
         return 0
+
+    def event_to_cef(self,event):
+        """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
+        print(event)
+        cef = ""
+
+        st1 = event.find("|",0,len(event))
+        st2 = event.find("|",st1+1,len(event))
+        su = event.find("|su|",st2,len(event))
+        tmp = event[su+4:]
+        extens = ""
+        for let in tmp:
+            if let == '|': let = " "
+            extens += let
+        cef += event[:st1] + " 2015 " + event[st1+1:st2] +" CEF:0" + event[st2:su]+"|3|"+"get rights root|10|"+extens
+        print(cef)
+        self.dispatcher(cef)

@@ -15,7 +15,8 @@ class Server():
         self._sockobj = socket(AF_INET, SOCK_STREAM)
         self._sockobj.bind((myHost, myPort))
         self._sockobj.listen(5)
-        self._manag_bd = manager_db.Manager()
+        self.manag_bd = manager_db.Manager()
+
 
     def __del__(self):
         """Закрытие сокета"""
@@ -35,8 +36,13 @@ class Server():
 
     def change_host(self, str_cef, address):
         """Замена в формате CEF поля host на IP адрес лиента"""
-        tmp = str_cef[:21] + str(address[0]) + str_cef[25:]
+        if str_cef.find("CEF:",0,len(str_cef)) != -1:
+            tmp = str_cef[:21] + str(address[0]) + str_cef[25:]
+        else:
+            st = str_cef.find("|",0,len(str_cef))
+            tmp = str_cef[:st+1]+str(address[0])+"|"+str_cef[st+1:]
         return tmp
+
 
     def handleClient(self, connection, address):
         """Обработка запроса от одельного клиента"""
@@ -53,11 +59,14 @@ class Server():
             data = self.change_host(data, address)
             print(data)
 
-            self._manag_bd.dispatcher(data)
+            self.manag_bd.dispatcher(data)
             reply = str(self.now())
             connection.send(reply.encode("utf-8"))
         connection.close()
 
 
 sev = Server()
-sev.dispecher()
+# sev.dispecher()
+# st = "Apr 27 20:22:12|127.0.0.1|Linux|debian-7.8|#1 SMP Debian 3.2.68-1|su|user=valentin|result=Successful|"
+st = "Apr 23 04:05:29|127.0.0.1|Linux|debian-7.8|#1 SMP Debian 3.2.68-1|su|user=valentin|result=FAILED|"
+sev.manag_bd.dispatcher(st)
