@@ -77,10 +77,11 @@ class Event_OS():
 
         for line in msgs:
             type = self.get_type(line)
-            if self._dist.get(type, None) == None:
-                self._dist[type] = 1
-            else:
-                self._dist[type] += 1
+            if type != None:
+                if self._dist.get(type, None) == None:
+                    self._dist[type] = 1
+                else:
+                    self._dist[type] += 1
 
 
     def formation_group(self, msgs):
@@ -273,7 +274,7 @@ class Event_OS():
             self.formation_dist(self.other)  #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(self.other)
             self.formation_event(groups)
-            # self.last_event(self.other[len(self.other)-1],len(self.other),'w')
+            self.last_event(self.other[len(self.other)-1],len(self.other),'w')
 
         elif self.other[len(self.other) - 1] == self.last_rec:
             """Если новых событий не произошло, то просто выходим"""
@@ -295,7 +296,7 @@ class Event_OS():
             self.formation_dist(ev)  #образуем список всех событий, которые имеют (сессию [number])
             groups = self.formation_group(ev)
             self.formation_event(groups)
-            # self.last_event(ev[len(ev)-1],len(self.other),'w')
+            self.last_event(ev[len(ev)-1],len(self.other),'w')
 
     def toString(self, msg):
         """Переводит входное сообщение в формат строки для дальнейшей пересылки"""
@@ -318,14 +319,9 @@ class Event_OS():
 
     def Events(self):  #подумать над названием
         """Разбирает имеющиеся события и если они полныет, то отправяет на сервер"""
-        print(len(self.events))
         su = []
         kdm = []
-        el = 0
-        i = 0
         for line in self.events:
-            # while i <len(self.events):
-            #     line = self.events[i]
             if line[1] == 'su':
                 if (len(line) == 5 and line[4] == "result=FAILED")or (len(line) == 7):
                     su.append(line[0])
@@ -354,23 +350,13 @@ class Event_OS():
                     msg.append(line[i+1])
                     msg.append(line[i+3])
                     msg.append(line[i+4])
-                    print(self.toString(msg))
-                    print("-----------------")
+                    # print(self.toString(msg))
+                    # print("-----------------")
                     kdm.append(line[0])
-            else:
-                el += 1
-                i += 1
 
-        print("su:", len(su))
-        print("kdm:", len(kdm))
 
         self.del_sent_msg(su)
         self.del_sent_msg(kdm)
-
-
-        print(len(self.events))
-        for line in self.events:
-            print(line)
 
     def tmp_dist(self):
         self.events.append([3715, 'Apr 27 20:22:12', 'guser=root', 'user=valentin', 'result=Successful'])
