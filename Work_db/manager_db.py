@@ -119,7 +119,6 @@ class Manager():
             else:
                 flag = False
             list_auth.append(flag)
-        print(list_auth)
         self._auth.set_row(list_auth)
         return 0
 
@@ -128,14 +127,29 @@ class Manager():
         print(event)
         cef = ""
 
-        st1 = event.find("|",0,len(event))
-        st2 = event.find("|",st1+1,len(event))
-        su = event.find("|su|",st2,len(event))
-        tmp = event[su+4:]
+        st1 = event.find("|",0,len(event)) # поиск в событии времени
+        st2 = event.find("|",st1+1,len(event)) # для поиска ip (начала)
+
+        stmp = st2
+        for i in range(0,3):
+            st3 = event.find("|",stmp+1,len(event))# поиск начала типа события
+            stmp = st3
+
+        st4 = event.find("|",st3+1,len(event))# поиск конца типа события
+
+        type = self._event_type.find_type(event[st3+1:st4]) #поиск в бд тип данного сообщения
+        if type == None:
+            return None
+
+        #выделение из события подлей для записи в extension
+        tmp = event[st4+1:]
         extens = ""
         for let in tmp:
             if let == '|': let = " "
             extens += let
-        cef += event[:st1] + " 2015 " + event[st1+1:st2] +" CEF:0" + event[st2:su]+"|3|"+"get rights root|10|"+extens
-        print(cef)
+
+        cef += event[:st1] +" " + event[st1+1:st2]
+        cef += " CEF:0" + event[st2:st3+1]
+        cef += str(type[0])+"|"+str(type[3])+"|"+str(type[1])+"|"+extens
+        # print(cef)
         self.dispatcher(cef)

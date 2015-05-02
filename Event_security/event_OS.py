@@ -7,7 +7,7 @@ import platform
 import os
 import getpass
 import client
-
+from  datetime import datetime
 
 class Event_OS():
     def __init__(self):
@@ -306,8 +306,11 @@ class Event_OS():
         try:
             strin = ""
             for i in range(0, len(msg)):
-                strin += str(msg[i]) + "|"
-                if i == 0: strin += self.get_system()
+                if i == 0:
+                    strin += str(msg[i]) + " "+ str(datetime.today().year) +"|"
+                    strin += self.get_system()
+                else:
+                    strin += str(msg[i]) +"|"
             return strin
         except:
             return None
@@ -350,10 +353,13 @@ class Event_OS():
 
                     flag = None
                     if sign ==  Cflag:
-                        self.client.send_message(self.toString(msg1))
-                        flag = self.client.recv_message()
-                        if flag :
-                            su.append(line[0])
+                        msg = self.toString(msg1)
+                        if msg != None:
+                            self.client.send_message(msg)
+
+                            flag = self.client.recv_message()
+                            if flag :
+                                su.append(line[0])
 
             elif line[1] == "kdm" :
                 for i in range(0,len(line),5):
@@ -363,11 +369,13 @@ class Event_OS():
                     msg.append(line[i+3])
                     msg.append(line[i+4])
 
-                    self.client.send_message(self.toString(msg1))
-
-                    flag = self.client.recv_message()
-                    if flag :
-                        kdm.append(line[0])
+                    t = self.toString(msg)
+                    if t != None:
+                        self.client.send_message(t)
+                        flag = None
+                        flag = self.client.recv_message()
+                        if flag :
+                            kdm.append(line[0])
 
 
         self.del_sent_msg(su)
@@ -401,7 +409,10 @@ class Event_OS():
 event = Event_OS()
 event.rights_root()
 event.open_log_auth()
+
 if event.client.isConnect:
     event.Events()
 else:
     print("not connect")
+
+# print(datetime.today().year)

@@ -50,3 +50,14 @@ class Event_type():
             except:
                 row = None
                 return row
+
+        def find_type(self,sign):
+            """Поиск по признаку в бд. для опередения типа поступившего события"""
+            rows = self.out_table()
+            for row in rows:
+                strin = row[4]
+                st =strin.find(sign+";",0,len(strin))
+                if st != -1:
+                    return row
+
+            return None

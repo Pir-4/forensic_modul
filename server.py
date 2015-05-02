@@ -57,7 +57,7 @@ class Server():
             if not data: break
 
             data = self.change_host(data, address)
-            print(data)
+            # print(data)
 
             self.manag_bd.dispatcher(data)
             reply = str(self.now())
@@ -66,7 +66,4 @@ class Server():
 
 
 sev = Server()
-# sev.dispecher()
-# st = "Apr 27 20:22:12|127.0.0.1|Linux|debian-7.8|#1 SMP Debian 3.2.68-1|su|user=valentin|result=Successful|"
-st = "Apr 23 04:05:29|127.0.0.1|Linux|debian-7.8|#1 SMP Debian 3.2.68-1|su|user=valentin|result=FAILED|"
-sev.manag_bd.dispatcher(st)
+sev.dispecher()
