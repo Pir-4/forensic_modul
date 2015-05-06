@@ -114,11 +114,7 @@ class Manager():
         if result == None:
             list_auth.append("NULL")
         else:
-            if result == "Successful":
-                flag = True
-            else:
-                flag = False
-            list_auth.append(flag)
+            list_auth.append(result)
         self._auth.set_row(list_auth)
         return 0
 
