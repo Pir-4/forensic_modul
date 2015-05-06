@@ -53,9 +53,23 @@ class Manager():
         return tmp
 
     def get_timestamp(self,cef):
-         """получение из CEF нежный формат времени"""
-         if cef[0]=="Apr": month ='0'+str(4)
+         """получение из CEF формат времени"""
+
+         if cef[0]=="Jan": month ='0'+str(1)
+         elif cef[0]=="Feb": month ='0'+str(2)
+         elif cef[0]=="Mar": month ='0'+str(3)
+         elif cef[0]=="Apr": month ='0'+str(4)
+         elif cef[0]=="May": month ='0'+str(5)
+         elif cef[0]=="Jun": month ='0'+str(6)
+         elif cef[0]=="Jul": month ='0'+str(7)
+         elif cef[0]=="Aug": month ='0'+str(8)
+         elif cef[0]=="Sep": month ='0'+str(9)
+         elif cef[0]=="Oct": month = str(10)
+         elif cef[0]=="Nov": month = str(11)
+         elif cef[0]=="Dec": month = str(12)
+
          string = str(cef[3])+"-"+month+"-"+str(cef[1])+" "+cef[2]
+
          return string
 
     def change_type_event(self,type):
