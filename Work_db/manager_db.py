@@ -134,7 +134,7 @@ class Manager():
 
     def event_to_cef(self,event):
         """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
-        print(event)
+        # print(event)
         cef = ""
 
         st1 = event.find("|",0,len(event)) # поиск в событии времени

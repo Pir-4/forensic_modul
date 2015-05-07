@@ -47,13 +47,13 @@ class Events():
          try:
              self._curr.execute(str,row)
              self._conn.commit()
-             return self.get_id()
+             return self.get_last_id()
          except:
              print("error insert row un table")
              return -1
 
          return 0
-     def get_id(self):
+     def get_last_id(self):
          """возвращяет id последнего события """
          st = "select  * from events order by event_id desc limit 1"
          try:
@@ -63,4 +63,27 @@ class Events():
          except:
             row = None
             return row
+
+     def get_row(self,event_id):
+         """Получение строки по event_id"""
+         st = "select * from events where event_id="+str(event_id)
+         try:
+             self._curr.execute(st)
+             row = self._curr.fetchall()
+         except:
+             row = None
+         return  row
+
+     def get_table_type(self,event_id):
+         """Получение информации о типе события по event_id"""
+         st = "select evs.event_id,evt.name_table,evt.sevarity,evt.description " \
+              "from events as evs join event_type as evt " \
+              "on evs.event_type = evt.event_type where evs.event_id ="+str(event_id)
+         try:
+             self._curr.execute(st)
+             row = self._curr.fetchall()
+         except:
+             row = None
+         return  row
+
 

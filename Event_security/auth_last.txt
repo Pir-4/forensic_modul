@@ -1,1 +1,1 @@
-57 May  6 22:20:09 debian su[6781]: pam_unix(su:session): session opened for user root by valentin(uid=1000)
+497 Apr 27 20:23:42 debian su[3710]: pam_unix(su:session): session closed for user root

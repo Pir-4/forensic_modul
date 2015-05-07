@@ -299,7 +299,6 @@ class Event_OS():
             return
         elif self.other[len(self.other) - 1] != self.last_rec:
             """Если имеем новый бок(и) событий"""
-            self.tmp_dist()  #потом урать
             if self.last_rec.find("\n", 0, len(self.last_rec)) == -1:
                 self.last_rec += '\n'
             flag = False
@@ -309,11 +308,11 @@ class Event_OS():
                     flag = True
                 if flag and line != self.last_rec:
                     ev.append(line)
-
-            self.formation_dist(ev)  #образуем список всех событий, которые имеют (сессию [number])
-            groups = self.formation_group(ev)
-            self.formation_event(groups)
-            self.last_event(ev[len(ev)-1],len(self.other),'w')
+            if len(ev) != 0:
+                self.formation_dist(ev)  #образуем список всех событий, которые имеют (сессию [number])
+                groups = self.formation_group(ev)
+                self.formation_event(groups)
+                self.last_event(ev[len(ev)-1],len(self.other),'w')
 
     def toString(self, msg):
         """Переводит входное сообщение в формат строки для дальнейшей пересылки"""
@@ -347,6 +346,7 @@ class Event_OS():
 
                     sign = 0
                     Cflag = 0
+                    smsg2 =None
 
                     if line[4] != "result=FAILED":
                         sign = 1
@@ -364,16 +364,20 @@ class Event_OS():
                         msg2.append(line[3])
                         msg2.append(line[6])
                         Cflag = 1
+                        smsg2 = self.toString(msg2)
 
-                    flag = None
-                    if sign ==  Cflag:
-                        msg = self.toString(msg1)
-                        if msg != None:
-                            self.client.send_message(msg)
+                    if sign == Cflag:
+                        smsg1 = self.toString(msg1)
 
-                            flag = self.client.recv_message()
-                            if flag :
-                                su.append(line[0])
+                        flag1 = self.send_msg(smsg1)
+                        flag2 = True
+
+                        if smsg2 != None:
+                            flag2 = False
+                            flag2 = self.send_msg(smsg2)
+
+                        if flag1 and flag2:
+                            su.append(line[0])
 
             elif line[1] == "kdm" :
                 for i in range(0,len(line),5):
@@ -385,15 +389,19 @@ class Event_OS():
 
                     t = self.toString(msg)
                     if t != None:
-                        self.client.send_message(t)
-                        flag = None
-                        flag = self.client.recv_message()
-                        if flag :
+                        if self.send_msg(t) :
                             kdm.append(line[0])
 
 
         self.del_sent_msg(su)
         self.del_sent_msg(kdm)
+
+    def send_msg(self,msg):
+        """Отправляет сообщение серверу, если сообщение дошло то возврашает тип, инчане NONE"""
+        self.client.send_message(msg)
+        if self.client.recv_message() != None:
+            return True
+        return False
 
     def reading(self):
         """основная функция, объедняет весь процесс считывания логиов"""

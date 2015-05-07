@@ -53,3 +53,16 @@ class Auth():
 
          return 0
 
+     def get_info(self,event_id):
+         """Получение информации о об авторизации по event_id"""
+         st = "select us.login,au.result " \
+              "from auth as au join users as us " \
+              "on au.user_id = us.user_id where au.event_id ="+str(event_id)
+         try:
+             self._curr.execute(st)
+             row = self._curr.fetchall()
+         except:
+             row = None
+         return  row
+
+

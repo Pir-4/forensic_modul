@@ -57,7 +57,7 @@ class Server():
             if not data: break
 
             data = self.change_host(data, address)
-            # print(data)
+            print(data)
 
             self.manag_bd.dispatcher(data)
             reply = str(self.now())
