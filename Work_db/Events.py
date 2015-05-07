@@ -70,9 +70,10 @@ class Events():
          try:
              self._curr.execute(st)
              row = self._curr.fetchall()
+             return  row[0]
          except:
              row = None
-         return  row
+             return  row
 
      def get_table_type(self,event_id):
          """Получение информации о типе события по event_id"""
@@ -82,8 +83,21 @@ class Events():
          try:
              self._curr.execute(st)
              row = self._curr.fetchall()
+             return row[0]
          except:
              row = None
-         return  row
+             return  row
 
-
+     def get_event_id(self,event_id):
+         """Получеам список всех id которые больше или равные заданому"""
+         st = "select event_id from events where event_id >="+str(event_id)
+         try:
+             self._curr.execute(st)
+             tmp = self._curr.fetchall()
+             row = []
+             for elem in tmp:
+                 row.append(elem[0])
+             return row
+         except:
+             row = None
+             return  row

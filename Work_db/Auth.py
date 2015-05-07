@@ -55,14 +55,26 @@ class Auth():
 
      def get_info(self,event_id):
          """Получение информации о об авторизации по event_id"""
-         st = "select us.login,au.result " \
+         st = "select us.login,au.result,au.ip " \
               "from auth as au join users as us " \
               "on au.user_id = us.user_id where au.event_id ="+str(event_id)
          try:
              self._curr.execute(st)
              row = self._curr.fetchall()
+             return  row[0]
          except:
              row = None
-         return  row
+             return  row
+
+     def get_cef(self,event_id):
+         """получение полей таблици в формате cef по event_id"""
+         row = self.get_info(event_id)
+         if row != None:
+             cef = "user="+str(row[0])
+             if row[2] != "NULL":
+                 cef += " ip="+str(row[2])
+             cef += " result="+str(row[1])
+             return cef
+         return None
 
 
