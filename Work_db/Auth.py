@@ -74,7 +74,7 @@ class Auth():
              if row[2] != "NULL":
                  cef += " ip="+str(row[2])
              cef += " result="+str(row[1])
-             return cef
+             return str(cef)
          return None
 
 

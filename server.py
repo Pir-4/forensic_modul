@@ -36,9 +36,10 @@ class Server():
 
     def change_host(self, str_cef, address):
         """Замена в формате CEF поля host на IP адрес лиента"""
+        tmp = str_cef
         if str_cef.find("CEF:",0,len(str_cef)) != -1:
             tmp = str_cef[:21] + str(address[0]) + str_cef[25:]
-        else:
+        elif str_cef.find("|",0,len(str_cef)) != -1:
             st = str_cef.find("|",0,len(str_cef))
             tmp = str_cef[:st+1]+str(address[0])+"|"+str_cef[st+1:]
         return tmp
@@ -57,11 +58,20 @@ class Server():
             if not data: break
 
             data = self.change_host(data, address)
-            # print(data)
 
-            self.manag_bd.dispatcher(data)
-            reply = str(self.now())
-            connection.send(reply.encode("utf-8"))
+            result = self.manag_bd.dispatcher(data)
+            if type(result)==type(list()):
+                l = len(result)
+                reply = str(l)
+                connection.send(reply.encode("utf-8"))
+                for line in result:
+                    time.sleep(0.25)
+                    reply = line
+                    connection.send(reply.encode("utf-8"))
+            else:
+                reply = str(self.now())
+                connection.send(reply.encode("utf-8"))
+
         connection.close()
 
 

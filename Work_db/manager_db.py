@@ -13,18 +13,29 @@ class Manager():
         self._auth = Auth.Auth()
 
     def dispatcher(self,str_cef):
-
-        if str_cef.find("CEF:",0,len(str_cef)) == -1: #если прило не cef а событие, то отправлем на преобразование в cef
+        if str_cef.find("CEF:",0,len(str_cef)) == -1 \
+           and str_cef.find("|",0,len(str_cef)) != -1 : #если прило не cef а событие, то отправлем на преобразование в cef
             self.event_to_cef(str_cef)
 
-        else:# если пришло cef то записываем данное событие в бд
-            list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
+        elif str_cef.find("admin_panel:",0,len(str_cef)) != -1: # если прило ссообщени с панели администратора
 
-            table = self.change_type_event(list_cef[9]) #получаем имя таблицу для дальнейшей работы по типу осбытия
-            event_id,user_id = self.set_event(list_cef)
+            return self.processing_admin_panel(str_cef)
 
-            if table == 'auth':
-                self.set_auth(event_id,user_id,list_cef[12])
+        elif str_cef.find("CEF:",0,len(str_cef)) != -1 :# если пришло cef то записываем данное событие в бд
+            return self.processing_cef(str_cef)
+
+        return "Not"
+
+    def processing_cef(self,str_cef): #Праоверить правильность для CEF и для сырых
+        """Функция обработки события, если оно пришло в формате CEF"""
+        list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
+
+        table = self.change_type_event(list_cef[9]) #получаем имя таблицы для дальнейшей работы по типу осбытия
+        event_id,user_id = self.set_event(list_cef)
+
+        if table == 'auth':
+            self.set_auth(event_id,user_id,list_cef[12])
+        return "OK"
 
     def parsing_CEF(self,str_cef):
          #Парсинг формата CEF на составляющие
@@ -130,7 +141,7 @@ class Manager():
     def event_to_cef(self,event):
         """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
         cef = ""
-
+        print("cdkjdkjdcjkkjc")
         st1 = event.find("|",0,len(event)) # поиск в событии времени
         st2 = event.find("|",st1+1,len(event)) # для поиска ip (начала)
 
@@ -175,7 +186,7 @@ class Manager():
         severity = str(event_type[2])
 
         cef = date +" "+ host +" CEF|0|"+ \
-              vendor +"|"+ product +"|"+ version +"|"+ signature +"|"+ name +"|"+ severity +"|"+ extension
+              vendor +"|"+ product +"|"+ version +"|"+ signature +"|"+ name +"|"+ severity +"|"+ str(extension)
         return cef
 
     def print_event_cef(self,event_id):
@@ -189,5 +200,9 @@ class Manager():
             cef.append(self.toCEF(id))
         return cef
 
-mg = Manager()
-print(mg.print_event_cef(1508))
+    def processing_admin_panel(self,msg):
+        """обработка сообщения от панели администратора"""
+        st = msg.find(":",0,len(msg))+1
+        id = int(msg[st:len(msg)])
+        cef = self.print_event_cef(id)
+        return cef
