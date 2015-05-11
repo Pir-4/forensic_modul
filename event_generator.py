@@ -27,4 +27,4 @@ def get_OS_ip():
     cef = get_time()+" host "+ cef
     return cef
 
-print(get_time())
+# print(get_OS())

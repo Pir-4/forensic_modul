@@ -182,7 +182,7 @@ class Event_OS():
         msg = ""
         msgc = ""
 
-        if o_msg.find("su for", 0, len(o_msg)) != -1:
+        if o_msg.find("su for", 0, len(o_msg)) != -1: #or o_msg.find("root by ", 0, len(o_msg)) != -1:
             msg = o_msg
         if o_msg.find("session closed", 0, len(o_msg)) != -1:
             msgc = o_msg

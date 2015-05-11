@@ -141,7 +141,7 @@ class Manager():
     def event_to_cef(self,event):
         """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
         cef = ""
-        print("cdkjdkjdcjkkjc")
+
         st1 = event.find("|",0,len(event)) # поиск в событии времени
         st2 = event.find("|",st1+1,len(event)) # для поиска ip (начала)
 
@@ -185,7 +185,7 @@ class Manager():
         name = event_type[3]
         severity = str(event_type[2])
 
-        cef = date +" "+ host +" CEF|0|"+ \
+        cef = date +" "+ host +" CEF:0|"+ \
               vendor +"|"+ product +"|"+ version +"|"+ signature +"|"+ name +"|"+ severity +"|"+ str(extension)
         return cef
 
