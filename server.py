@@ -65,7 +65,7 @@ class Server():
                 reply = str(l)
                 connection.send(reply.encode("utf-8"))
                 for line in result:
-                    time.sleep(0.25)
+                    time.sleep(0.0025)
                     reply = line
                     connection.send(reply.encode("utf-8"))
             else:
