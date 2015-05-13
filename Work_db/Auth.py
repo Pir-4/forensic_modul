@@ -48,7 +48,7 @@ class Auth():
              self._curr.execute(str,row)
              self._conn.commit()
          except:
-             print("error insert row in table")
+             print("error insert row in Auth table")
              return -1
 
          return 0

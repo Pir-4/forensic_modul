@@ -49,7 +49,7 @@ class Events():
              self._conn.commit()
              return self.get_last_id()
          except:
-             print("error insert row un table")
+             print("error insert row in Events table")
              return -1
 
          return 0

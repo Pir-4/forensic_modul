@@ -8,9 +8,9 @@ class Event_type():
         def __init__(self):
             """соединения с базой данных"""
             self._dbname = "'forensic'"
-            self._user = "'postgres'"
+            self._user = "'us_ev_type'"
             self._host = "'localhost'"
-            self._password = "'valentin'"
+            self._password = "'us_ev_type'"
 
             str ="dbname="+self._dbname+" user="+self._user+" host="+self._host+" password="+self._password
             try:
@@ -54,10 +54,10 @@ class Event_type():
         def find_type(self,sign):
             """Поиск по признаку в бд. для опередения типа поступившего события"""
             rows = self.out_table()
-            for row in rows:
-                strin = row[4]
-                st =strin.find(sign+";",0,len(strin))
-                if st != -1:
-                    return row
-
+            if rows != None:
+                for row in rows:
+                    strin = row[4]
+                    st =strin.find(sign+";",0,len(strin))
+                    if st != -1:
+                        return row
             return None

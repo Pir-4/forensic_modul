@@ -66,8 +66,8 @@ class Event_OS():
 
         if os.getuid() == 0:
             return True
-        else:
-            print("error: the program is started without rights root")
+        # else:
+        #     print("error: the program is started without rights root")
 
         return False
 

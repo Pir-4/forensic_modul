@@ -173,7 +173,6 @@ class Panel(Frame):
 
     def filter_version(self,events):
         """Фильтрует значение по версии cef"""
-        print(events[0][5])
         try:
             ver = int(self.en_version.get())
         except:

@@ -8,9 +8,9 @@ class Users():
         def __init__(self):
             """соединения с базой данных"""
             self._dbname = "'forensic'"
-            self._user = "'postgres'"
+            self._user = "'us_users'"
             self._host = "'localhost'"
-            self._password = "'valentin'"
+            self._password = "'us_users'"
 
             str ="dbname="+self._dbname+" user="+self._user+" host="+self._host+" password="+self._password
             try:
