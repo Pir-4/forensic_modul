@@ -10,7 +10,8 @@ import client
 from  datetime import datetime
 
 class Event_OS():
-    def __init__(self):
+    def __init__(self,id):
+        self._agent_id = id
         self._system = str(platform.system())
         self._info_system = self.info_sistem()
         self._dist = {}
@@ -66,8 +67,8 @@ class Event_OS():
 
         if os.getuid() == 0:
             return True
-        # else:
-        #     print("error: the program is started without rights root")
+        else:
+            print("error: the program is started without rights root")
 
         return False
 
@@ -317,7 +318,7 @@ class Event_OS():
     def toString(self, msg):
         """Переводит входное сообщение в формат строки для дальнейшей пересылки"""
         try:
-            strin = ""
+            strin = str(self._agent_id)+"|"
             for i in range(0, len(msg)):
                 if i == 0:
                     strin += str(msg[i]) + " "+ str(datetime.today().year) +"|"
@@ -413,5 +414,6 @@ class Event_OS():
         self.open_log_auth() # открываем файл лого вдля считывания
         self.parsing_events() # разбираем счтаные события и отправляем на сервер
 
-event = Event_OS()
-event.reading()
+
+# event = Event_OS()
+# event.reading()

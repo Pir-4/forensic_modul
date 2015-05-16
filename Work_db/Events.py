@@ -42,8 +42,8 @@ class Events():
 
      def set_row(self,row):
          """вставка строки в таблицу"""
-         str = "insert into events (date,host,device_vendor,device_product,device_version,event_type,user_id) " \
-               "values (%s,%s,%s,%s,%s,%s,%s);"
+         str = "insert into events (date,host,device_vendor,device_product,device_version,event_type,user_id,agent_id) " \
+               "values (%s,%s,%s,%s,%s,%s,%s,%s);"
          try:
              self._curr.execute(str,row)
              self._conn.commit()

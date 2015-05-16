@@ -37,6 +37,7 @@ class Panel(Frame):
         self.leb_type = Label(self, text="Тип", anchor='center')
         self.leb_severity = Label(self, text="Уровень угрозы", anchor='center')
 
+
         self.but_apply_filter = Button(self,text="Применить фильтры",command=self.apply_filter,anchor='center')
         self.but_clear_filter = Button(self,text="Очистить фильтры",command=self.clear_filter,anchor='center')
 
@@ -269,17 +270,17 @@ class Panel(Frame):
     def table(self):
         """Создание таблицы"""
         fr = ttk.Frame(self)
-        fr.grid(row=0, column = 0,rowspan=12)
+        fr.grid(row=0, column = 0,rowspan=20)
 
         #создаем таблицу Treeview
         self._table_req = ttk.Treeview(fr, show='headings', selectmode='browse', height=10)
 
         # задаем заголовки колонкам
         self._table_req["columns"]=("Month","Day","Time","Year","IP","Version","Device Vendor","Device Product","Device Version",
-                              "Signature ID","Name","Severity","Extension")
+                              "Signature ID","Name","Severity","Extension","Agent_id")
         #выводим необходимые столбцы
         self._table_req["displaycolumns"] = ("Month","Day","Time","Year","IP","Version","Device Vendor","Device Product","Device Version",
-                                       "Signature ID","Name","Severity","Extension")
+                                       "Signature ID","Name","Severity","Extension","Agent_id")
 
         self._table_req.heading("Month",text="Month",anchor='center')
         self._table_req.heading("Day",text="Day",anchor='center')
@@ -294,6 +295,7 @@ class Panel(Frame):
         self._table_req.heading("Name",text="Name",anchor='center')
         self._table_req.heading("Severity",text="Severity",anchor='center')
         self._table_req.heading("Extension",text="Extension",anchor='center')
+        self._table_req.heading("Agent_id",text="Agent_id",anchor='center')
 
         self._table_req.column("Month",stretch=0, width=50)
         self._table_req.column("Day",stretch=0, width=30)
@@ -308,18 +310,15 @@ class Panel(Frame):
         self._table_req.column("Name",stretch=0, width=100)
         self._table_req.column("Severity",stretch=0, width=60)
         self._table_req.column("Extension",stretch=0, width=300)
+        self._table_req.column("Agent_id",stretch=0, width=60)
 
         yscroll =ttk.Scrollbar(orient="vertical")
-        # xscroll =ttk.Scrollbar(orient="horizontal")
 
         self._table_req.config(yscrollcommand=yscroll.set)
-        # self._table_req.config(xscrollcommand=xscroll.set)
 
-        yscroll.config(command=self._table_req)
+        yscroll.config(command=self._table_req.yview)
         yscroll.grid(row=0, column=1, sticky='ns')
 
-        # xscroll.config(command=self._table_req)
-        # xscroll.grid(row=1, column=0, sticky='ew')
 
         self._table_req.grid(row=0, column=0, sticky=NSEW)
 
@@ -376,7 +375,10 @@ class Panel(Frame):
             else:
                 tmp.append(str_cef[st:end])
             st = end+1
-        tmp.append(str_cef[st:])
+        # tmp.append(str_cef[st:])
+        end = str_cef.find('|',st+1,ln)
+        tmp.append(str_cef[st:end])
+        tmp.append(int(str_cef[end+1:]))
         return tmp
 
 

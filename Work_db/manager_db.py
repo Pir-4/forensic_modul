@@ -29,7 +29,6 @@ class Manager():
     def processing_cef(self,str_cef): #Праоверить правильность для CEF и для сырых
         """Функция обработки события, если оно пришло в формате CEF"""
         list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
-
         table = self.change_type_event(list_cef[9]) #получаем имя таблицы для дальнейшей работы по типу осбытия
         event_id,user_id = self.set_event(list_cef)
 
@@ -61,7 +60,9 @@ class Manager():
             else:
                 tmp.append(str_cef[st:end])
             st = end+1
-        tmp.append(str_cef[st:])
+        end = str_cef.find('|',st+1,ln)
+        tmp.append(str_cef[st:end])
+        tmp.append(int(str_cef[end+1:]))
         return tmp
 
     def get_timestamp(self,cef):
@@ -95,6 +96,7 @@ class Manager():
              tmp.append(0)
          else:
              tmp.append(self._users.get_id(result))
+         tmp.append(cef[len(cef)-1])
          return tmp
 
     def set_event(self,cef):
@@ -141,6 +143,10 @@ class Manager():
     def event_to_cef(self,event):
         """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
         cef = ""
+        idst = event.find("|",0,len(event))#поиск id агента
+        agent_id = int(event[:idst])
+
+        event = event[idst+1:]
 
         st1 = event.find("|",0,len(event)) # поиск в событии времени
         st2 = event.find("|",st1+1,len(event)) # для поиска ip (начала)
@@ -165,7 +171,7 @@ class Manager():
 
         cef += event[:st1] +" " + event[st1+1:st2]
         cef += " CEF:0" + event[st2:st3+1]
-        cef += str(type[0])+"|"+str(type[3])+"|"+str(type[1])+"|"+extens
+        cef += str(type[0])+"|"+str(type[3])+"|"+str(type[1])+"|"+extens[:len(extens)-1]+"|"+str(agent_id)
         self.dispatcher(cef)
 
     def toCEF(self,event_id):
@@ -184,9 +190,11 @@ class Manager():
         signature = str(events[6])
         name = event_type[3]
         severity = str(event_type[2])
+        agent_id = str(events[8])
 
         cef = date +" "+ host +" CEF:0|"+ \
-              vendor +"|"+ product +"|"+ version +"|"+ signature +"|"+ name +"|"+ severity +"|"+ str(extension)
+              vendor +"|"+ product +"|"+ version +"|"+ signature +"|"+ name +"|"+ severity +"|"+ str(extension)+"|"\
+              +agent_id
         return cef
 
     def print_event_cef(self,event_id):

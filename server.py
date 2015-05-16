@@ -39,8 +39,10 @@ class Server():
         tmp = str_cef
         if str_cef.find("CEF:",0,len(str_cef)) != -1:
             tmp = str_cef[:21] + str(address[0]) + str_cef[25:]
+
         elif str_cef.find("|",0,len(str_cef)) != -1:
             st = str_cef.find("|",0,len(str_cef))
+            st = str_cef.find("|",st+1,len(str_cef))
             tmp = str_cef[:st+1]+str(address[0])+"|"+str_cef[st+1:]
         return tmp
 
@@ -58,9 +60,13 @@ class Server():
             if not data: break
 
             data = self.change_host(data, address)
-
             result = self.manag_bd.dispatcher(data)
+
+            mutex = thread.allocate_lock()
+
+
             if type(result)==type(list()):
+                mutex.acquire() #блокировка на прерывание
                 l = len(result)
                 reply = str(l)
                 connection.send(reply.encode("utf-8"))
@@ -68,9 +74,12 @@ class Server():
                     time.sleep(0.0025)
                     reply = line
                     connection.send(reply.encode("utf-8"))
+                mutex.release()# разрешение на прерывание
             else:
                 reply = str(self.now())
                 connection.send(reply.encode("utf-8"))
+
+
 
         connection.close()
 
