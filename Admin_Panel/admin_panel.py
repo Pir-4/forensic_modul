@@ -27,7 +27,7 @@ class Panel(Frame):
         self.but_update = Button(self,text="Обновить таблицу",command=self.update_server,anchor='center')
         self.but_clear = Button(self,text="Очистить таблицу",command=self.clear_table,anchor='center')
 
-        self.leb_filter = Label(self, text="Филтры", anchor='center')
+        self.leb_filter = Label(self, text="Фильтры", anchor='center')
 
         self.leb_date = Label(self, text="Дата", anchor='center')
         self.chekbox_val = IntVar()

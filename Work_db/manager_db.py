@@ -1,8 +1,8 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
 #Менеджер для работы с базами данных, принимает сообщение от сервера и записывает его в базу данных
-from Work_db import Users, Event_type, Auth, Events
-from Work_db import Auth
+from Work_db import Users, Event_type, Auth, Events,Agents
+# from Work_db import Auth
 from datetime import datetime
 
 class Manager():
@@ -11,6 +11,7 @@ class Manager():
         self._event_type = Event_type.Event_type()
         self._users = Users.Users()
         self._auth = Auth.Auth()
+        self._agents = Agents.Agents()
 
     def dispatcher(self,str_cef):
         if str_cef.find("CEF:",0,len(str_cef)) == -1 \
@@ -29,6 +30,8 @@ class Manager():
     def processing_cef(self,str_cef): #Праоверить правильность для CEF и для сырых
         """Функция обработки события, если оно пришло в формате CEF"""
         list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
+        if list_cef == None:
+            return
         table = self.change_type_event(list_cef[9]) #получаем имя таблицы для дальнейшей работы по типу осбытия
         event_id,user_id = self.set_event(list_cef)
 
@@ -63,6 +66,8 @@ class Manager():
         end = str_cef.find('|',st+1,ln)
         tmp.append(str_cef[st:end])
         tmp.append(int(str_cef[end+1:]))
+        if not self._agents.isAgent(tmp[len(tmp)-1]):
+             return None
         return tmp
 
     def get_timestamp(self,cef):
@@ -145,6 +150,9 @@ class Manager():
         cef = ""
         idst = event.find("|",0,len(event))#поиск id агента
         agent_id = int(event[:idst])
+
+        if  not self._agents.isAgent(agent_id):
+            return None
 
         event = event[idst+1:]
 
