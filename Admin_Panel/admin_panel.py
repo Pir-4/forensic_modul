@@ -1,4 +1,4 @@
- #__author__ = 'Valentin'
+#__author__ = 'Valentin'
  # -*- coding:utf-8 -*-
 #панель администратора
 
@@ -374,19 +374,19 @@ class Panel(Frame):
         self._table_req.heading("Extension",text="Extension",anchor='center')
         self._table_req.heading("Agent_id",text="Agent_id",anchor='center')
 
-        self._table_req.column("Month",stretch=0, width=50)
+        self._table_req.column("Month",stretch=0, width=30)
         self._table_req.column("Day",stretch=0, width=30)
         self._table_req.column("Time",stretch=0, width=65)
         self._table_req.column("Year",stretch=0, width=40)
         self._table_req.column("IP",stretch=0, width=40)
-        self._table_req.column("Version",stretch=0, width=57)
+        self._table_req.column("Version",stretch=0, width=20)
         self._table_req.column("Device Vendor",stretch=0, width=60)
         self._table_req.column("Device Product",stretch=0, width=60)
         self._table_req.column("Device Version",stretch=0, width=60)
         self._table_req.column("Signature ID",stretch=0, width=65)
         self._table_req.column("Name",stretch=0, width=100)
         self._table_req.column("Severity",stretch=0, width=60)
-        self._table_req.column("Extension",stretch=0, width=300)
+        self._table_req.column("Extension",stretch=0, width=250)
         self._table_req.column("Agent_id",stretch=0, width=60)
 
         yscroll =ttk.Scrollbar(orient="vertical")
@@ -503,7 +503,7 @@ class Panel(Frame):
             yscroll.config(command=self.lis_prod.yview)
             xscroll.config(command=self.lis_prod.xview)
 
-            self.lis_prod.pack(side = LEFT, fill = BOTH)
+            self.lis_prod.pack(side = LEFT, fill = BOTH, expand = 'True')
             self.lis_prod.bind('<ButtonRelease>',self.filling_leb_prod)
         else:
             self.top.destroy()
@@ -537,7 +537,7 @@ class Panel(Frame):
             yscroll.config(command=self.lis_type.yview)
             xscroll.config(command=self.lis_type.xview)
 
-            self.lis_type.pack(side = LEFT, fill = BOTH)
+            self.lis_type.pack(side = LEFT, fill = BOTH, expand = 'True')
             self.lis_type.bind('<ButtonRelease>',self.filling_leb_type)
         else:
             self.top_type.destroy()
@@ -571,7 +571,7 @@ class Panel(Frame):
             yscroll.config(command=self.lis_exten.yview)
             xscroll.config(command=self.lis_exten.xview)
 
-            self.lis_exten.pack(side = LEFT, fill = BOTH)
+            self.lis_exten.pack(side = LEFT, fill = BOTH, expand = 'True')
             self.lis_exten.bind('<ButtonRelease>',self.filling_leb_exten)
         else:
             self.top_exten.destroy()
