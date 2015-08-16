@@ -22,7 +22,7 @@ class Event_OS():
         self.client = client.Client()
 
     def info_sistem(self):
-        """возвращает информацию о ОС"""
+        """returns information about the OS"""
         tmp = []
         if self._system == "Linux":
             tmp.append(self._system)
@@ -44,14 +44,14 @@ class Event_OS():
 
 
     def get_system(self):
-        """получем сообщение о хра-х системы в формате cef """
+        """We receive reports of church's system format cef """
         tmp = ""
         for info in self._info_system:
             tmp += info + "|"
         return tmp
 
     def rights_root(self):
-        """скрипт на запрос прав root если их нет"""
+        """script to request root access if they do not"""
         # euid = os.geteuid()
         # print(euid)
         # if euid != 0:
@@ -74,7 +74,7 @@ class Event_OS():
 
     def open_log_auth(self):
         if self._system == "Linux":
-            """открываем лог файл auth (пока свой,тестовый)"""
+            """open the log file auth (until the, test)"""
             if self.rights_root():
                 path = "/var/log/auth.log"
             else:
@@ -85,11 +85,11 @@ class Event_OS():
         auth = open(path, 'r')
         self.other = auth.readlines()
         auth.close()
-        self.last_event("", 0, 'r')  # считываем последнее событие,которое запомнили
+        self.last_event("", 0, 'r')  # We read the last event that will be remembered
         self.control_event()
 
     def formation_dist(self, msgs):
-        """Составляем набор имеющихся сесиий индетификации событий"""
+        """We make available a set of sessions identifying events"""
 
         for line in msgs:
             type = self.get_type(line)
@@ -101,7 +101,7 @@ class Event_OS():
 
 
     def formation_group(self, msgs):
-        """возвраящает список сгрупированных сообщений по их номеру сессии"""
+        """returns a list of copied messages in their session number"""
         key = self._dist.keys()
         groups = []
         for type in key:
@@ -117,7 +117,7 @@ class Event_OS():
         return groups
 
     def formation_event(self, groups):
-        """форимирование из поступивших сгрупированных событий в инифицированный ввид"""
+        """forimirovanie of received events are grouped in view of inifitsirovanny"""
         for line in groups:
             tmp = self.parsing_msg_su(line)
             if tmp != None:
@@ -128,7 +128,7 @@ class Event_OS():
                     self.events.append(tmp)
 
     def get_date(self, msg):
-        """возвращает дату из поступившего сообщения"""
+        """returns the date of the incoming messages"""
         # print(msg)
         st = msg.find(" ", 0, len(msg))
         st = msg.find(":", st + 1, len(msg))
@@ -136,7 +136,7 @@ class Event_OS():
         return msg[:st]
 
     def get_type(self, msg):
-        """возращяет сесии сообщения"""
+        """returns the session posts"""
         st = msg.find("[", 0, len(msg))
         st += 1
         end = msg.find("]", st, len(msg))
@@ -148,14 +148,13 @@ class Event_OS():
             return None
 
     def parsing_msg_su(self, gmsg):
-        """Разбираем блок логов (для su) (сгрупированных) на составляющие время,на какие права претндвал,
-        кто щапрашивал,реультат"""
+        """Dismantle the logs (for su) (are grouped) into components time to any right to claim who schaprashival, reultate"""
         if len(gmsg) == 0: return None
         st = gmsg[0].find("su", 0, len(gmsg[0]))
-        if st == -1:  #сообщения формата su или нет
+        if st == -1:  #Messages format su or no
             return None
 
-        #провереят и записывает,если соообщение о конце сесии записалось позже основного блока
+        #and sign checks, if the message of the end of the session is recorded after the main unit
         if len(gmsg) == 1:
             type = self.get_type(gmsg[0])
             tmp = self.parsing_one_su(gmsg[0])
@@ -168,7 +167,7 @@ class Event_OS():
             self.events.extend(tmp)
             return
 
-        #это часть выполняется, если у нас не одно, а целая группа сообщений
+        #This part is done, if we have not one but a whole group of messages
         mes = []
         for line in gmsg:
             tmp = self.parsing_one_su(line)
@@ -178,7 +177,7 @@ class Event_OS():
         return mes
 
     def parsing_one_su(self, o_msg):
-        """парсит одну строку"""
+        """parse one line"""
         tmp = []
         msg = ""
         msgc = ""
@@ -191,28 +190,28 @@ class Event_OS():
         if msg == "" and msgc == "": return None
 
         if msg != "":
-            tmp.append(self.get_type(msg))  #записываем номер сессии для дальнейшей работы
-            tmp.append("su")  # записываем тип сообщения, для разборна на стороне сервера
-            tmp.append(self.get_date(msg))  #записываем дату сообщения
+            tmp.append(self.get_type(msg))  #write the number of the session for further work
+            tmp.append("su")  # write message type to parse the server side
+            tmp.append(self.get_date(msg))  #record the date of the report
 
-            # находим на на кого притендовал пользователь (root-а)
+            # find someone to claim the user (root-a)
             # st = msg.find("for",0,len(msg))+4
             # end = msg.find(" ",st,len(msg))
             # tmp.append("guser="+msg[st:end])
 
-            #находим какой пользователь претендовал на поуления прав
+            #We find a user to apply for rights
             st = msg.find("by", 0, len(msg)) + 3
             end = msg.find(" ", st, len(msg))
             tmp.append("user=" + msg[st:end])
 
-            #проверка на успешность входа
+            #check for a successful login
             if -1 != msg.find("Successful", 0, len(msg)):
                 tmp.append("result=Successful")
             elif -1 != msg.find("FAILED ", 0, len(msg)):
                 tmp.append("result=FAILED")
 
 
-        # если сессия был завершина то ствим пометку в виде времени и того что она была завершина
+        # if the session has been completed is highly hypothetical mark in the form of time and the fact that it has been completed
         if msgc != "":
             tmp.append(self.get_date(msgc))
             tmp.append("result=close")
@@ -220,11 +219,11 @@ class Event_OS():
         return tmp
 
     def parsing_msg_kdm(self, gmsg):
-        """Разбираем сообщаня, образоываные привходе в систему: дата,кто,результат"""
+        """Parse Posts formed at logon date, who, result"""
         if len(gmsg) == 0: return None
 
         st = gmsg[0].find("kdm:", 0, len(gmsg[0]))
-        if st == -1:  #сообщения формата kdm или нет
+        if st == -1:  #Posts kdm format or not
             return None
 
         tmp = []
@@ -260,7 +259,7 @@ class Event_OS():
         return tmp
 
     def last_event(self, line, size, rw):
-        """Записываем в файл последнию строку считаную в прошлый раз"""
+        """Write to file the last line of the read last time"""
         if self._system == "Windows":
             path = "C:\\Users\\Valentin\\PycharmProjects\\forensic_modul\\auth_last.txt"
         if self._system == "Linux":
@@ -286,20 +285,20 @@ class Event_OS():
                     self.last_size = 0
 
     def control_event(self):
-        """смотрит, был ли пополнен файл новыви событиями"""
+        """It looks whether the file is augmented with new developments"""
         if self.last_rec == "" or len(self.other) < self.last_size:
-            """Если произошел первый запуск или файл auth переполнился и наался ввести заново"""
-            self.formation_dist(self.other)  #образуем список всех событий, которые имеют (сессию [number])
+            """If there was a first run or a file auth overflowed and began to re-enter"""
+            self.formation_dist(self.other)  #we form a list of all the events that have (session [number])
             groups = self.formation_group(self.other)
             self.formation_event(groups)
             self.last_event(self.other[len(self.other)-1],len(self.other),'w')
 
         elif self.other[len(self.other) - 1] == self.last_rec:
-            """Если новых событий не произошло, то просто выходим"""
+            """If the new event does not happen, then just leave"""
             print("====")
             return
         elif self.other[len(self.other) - 1] != self.last_rec:
-            """Если имеем новый бок(и) событий"""
+            """If you have a new side (s) of events"""
             if self.last_rec.find("\n", 0, len(self.last_rec)) == -1:
                 self.last_rec += '\n'
             flag = False
@@ -310,13 +309,13 @@ class Event_OS():
                 if flag and line != self.last_rec:
                     ev.append(line)
             if len(ev) != 0:
-                self.formation_dist(ev)  #образуем список всех событий, которые имеют (сессию [number])
+                self.formation_dist(ev)  #we form a list of all the events that have (session [number])
                 groups = self.formation_group(ev)
                 self.formation_event(groups)
                 self.last_event(ev[len(ev)-1],len(self.other),'w')
 
     def toString(self, msg):
-        """Переводит входное сообщение в формат строки для дальнейшей пересылки"""
+        """It translates the input message format string to forward"""
         try:
             strin = str(self._agent_id)+"|"
             for i in range(0, len(msg)):
@@ -330,7 +329,7 @@ class Event_OS():
             return None
 
     def del_sent_msg(self, types):
-        """Удаляет изсобытий уже разобраные и отпраленые на сервер сообщения"""
+        """Removes events already dismantled and sent to the server message"""
         for type in types:
             for line in self.events:
                 if line[0] == type:
@@ -338,7 +337,7 @@ class Event_OS():
                     break
 
     def parsing_events(self):
-        """Разбирает имеющиеся события и если они полныет, то отправяет на сервер"""
+        """Parses the available events and if complete, it sends to the server"""
         su = []
         kdm = []
         for line in self.events:
@@ -398,21 +397,21 @@ class Event_OS():
         self.del_sent_msg(kdm)
 
     def send_msg(self,msg):
-        """Отправляет сообщение серверу, если сообщение дошло то возврашает тип, инчане NONE"""
+        """It sends a message to the server, if the message came back that type inchane NONE"""
         self.client.send_message(msg)
         if self.client.recv_message() != None:
             return True
         return False
 
     def reading(self):
-        """основная функция, объедняет весь процесс считывания логиов"""
-        # if not self.rights_root(): #если у нас нет прав рута, то выходим из программы
+        """the main function, integrates the entire process of reading logins"""
+        # if not self.rights_root(): #If you do not have root access, then exit the program
         #     return
-        if not self.client.isConnect: #если у нас нет связи с сервером
+        if not self.client.isConnect: #if we have no connection to the server
             print("error: No connection to the server")
             return
-        self.open_log_auth() # открываем файл лого вдля считывания
-        self.parsing_events() # разбираем счтаные события и отправляем на сервер
+        self.open_log_auth() # open the log file for reading
+        self.parsing_events() # dismantle a few events and sent to the server
 
 
 # event = Event_OS()

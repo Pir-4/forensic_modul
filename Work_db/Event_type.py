@@ -1,12 +1,12 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
-#класс для работы с таблицей Event_type
+#class to work with the table Event_type
 
 import psycopg2
 
 class Event_type():
         def __init__(self):
-            """соединения с базой данных"""
+            """a database connection"""
             self._dbname = "'forensic'"
             self._user = "'us_ev_type'"
             self._host = "'localhost'"
@@ -23,7 +23,7 @@ class Event_type():
                 self.err = 1
 
         def __del__(self):
-            #при уничтоении объекта закрывается соедениение
+            #when an object is destroyed the connection is closed
             try:
                 self._curr.close()
                 self._conn.close()
@@ -32,7 +32,7 @@ class Event_type():
 
 
         def out_table(self):
-            """получение из таблицы всех строк"""
+            """getting all the rows from a table"""
             try:
                 self._curr.execute("""select * from event_type""")
                 rows = self._curr.fetchall()
@@ -41,7 +41,7 @@ class Event_type():
             return rows
 
         def check_type(self,type):
-            # """получение имя таблицы по типу"""
+            # """getting the name of the table by type"""
             st = "select name_table from event_type where event_type="+str(type)
             try:
                 self._curr.execute(st)
@@ -52,7 +52,7 @@ class Event_type():
                 return row
 
         def find_type(self,sign):
-            """Поиск по признаку в бд. для опередения типа поступившего события"""
+            """Search on the grounds of the database. to determine the type of events entered"""
             rows = self.out_table()
             if rows != None:
                 for row in rows:

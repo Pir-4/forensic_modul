@@ -1,6 +1,6 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
-#Менеджер для работы с базами данных, принимает сообщение от сервера и записывает его в базу данных
+#Manager to work with databases, receives a message from the server and stores it in the database
 from Work_db import Users, Event_type, Auth, Events,Agents
 # from Work_db import Auth
 from datetime import datetime
@@ -15,24 +15,24 @@ class Manager():
 
     def dispatcher(self,str_cef):
         if str_cef.find("CEF:",0,len(str_cef)) == -1 \
-           and str_cef.find("|",0,len(str_cef)) != -1 : #если прило не cef а событие, то отправлем на преобразование в cef
+           and str_cef.find("|",0,len(str_cef)) != -1 : #If it's not a cef event, sent to convert to cef
             self.event_to_cef(str_cef)
 
-        elif str_cef.find("admin_panel:",0,len(str_cef)) != -1: # если прило ссообщени с панели администратора
+        elif str_cef.find("admin_panel:",0,len(str_cef)) != -1: # if the message came from the admin panel
 
             return self.processing_admin_panel(str_cef)
 
-        elif str_cef.find("CEF:",0,len(str_cef)) != -1 :# если пришло cef то записываем данное событие в бд
+        elif str_cef.find("CEF:",0,len(str_cef)) != -1 :# if it is cef write the event to the database
             return self.processing_cef(str_cef)
 
         return "Not"
 
-    def processing_cef(self,str_cef): #Праоверить правильность для CEF и для сырых
-        """Функция обработки события, если оно пришло в формате CEF"""
-        list_cef = self.parsing_CEF(str_cef) # получаем из строки лист
+    def processing_cef(self,str_cef):
+        """The function of handling the event, if it came in the form CEF"""
+        list_cef = self.parsing_CEF(str_cef) # obtain from a string list
         if list_cef == None:
             return
-        table = self.change_type_event(list_cef[9]) #получаем имя таблицы для дальнейшей работы по типу осбытия
+        table = self.change_type_event(list_cef[9]) #get the name of the table for further work by event type
         event_id,user_id = self.set_event(list_cef)
 
         if table == 'auth':
@@ -40,17 +40,17 @@ class Manager():
         return "OK"
 
     def parsing_CEF(self,str_cef):
-         #Парсинг формата CEF на составляющие
+         #Parsing CEF format into components
         tmp = []
-        tmp.append(str_cef[:3]) # месяц
+        tmp.append(str_cef[:3]) # month
         if str_cef[4] == " ":
-            tmp.append('0'+str_cef[5:6]) #день
+            tmp.append('0'+str_cef[5:6]) #day
         else:
-            tmp.append(str_cef[4:6])#день
+            tmp.append(str_cef[4:6])#day
 
-        tmp.append(str_cef[7:15]) # время
-        tmp.append(int(str_cef[16:20])) # год
-        tmp.append(str_cef[21:30]) # хост
+        tmp.append(str_cef[7:15]) # time
+        tmp.append(int(str_cef[16:20])) # year
+        tmp.append(str_cef[21:30]) # host
 
         ln = len(str_cef)
         st = str_cef.find(':',30,ln)+1
@@ -71,23 +71,23 @@ class Manager():
         return tmp
 
     def get_timestamp(self,cef):
-         """получение из CEF формат времени для бд"""
+         """get of CEF format for time database"""
          string = str(cef[3])+" "+str(cef[0])+" "+str(cef[1])+" "+str(cef[2])
          date = datetime.strptime(string,"%Y %b %d %H:%M:%S")
          return string
 
     def get_date(self,date):
-        """Получение из времени бд время cef"""
+        """Getting out of time while the database cef"""
         string = datetime.strftime(date,"%c")
         return string[4:]
 
     def change_type_event(self,type):
-        """идет запрос в таблицу типов, и возвращяется имя таблицы куда нужно записать"""
+        """is a request to the table type, and returns the name of the table where you want to record"""
         str = self._event_type.check_type(type)
         return str
 
     def get_event(self,time,cef):
-         """Создание структуры для записи в Events"""
+         """Creating a structure for recording in Events"""
          tmp = []
          tmp.append(time)
          tmp.append(cef[4])
@@ -95,7 +95,7 @@ class Manager():
          tmp.append(cef[7])
          tmp.append(cef[8])
          tmp.append(cef[9])
-        #обработка поля extension, для нахожения логина, если имеется.
+        #processing field extension, to find the login, if available.
          result = self.find_value('user',cef[12])
          if result == None:
              tmp.append(0)
@@ -105,14 +105,14 @@ class Manager():
          return tmp
 
     def set_event(self,cef):
-        """Записываем событие в таблицу Events"""
-        time = self.get_timestamp(cef) #находим время события
-        list_event = self.get_event(time,cef) #формирования струкруры для записи в таблицу events
-        event_id = self._event.set_row(list_event)#запись события в таблицу events
-        return event_id,list_event[6] #возвращает id события и id пользователя (если пользователя нет то вернет 0)
+        """Write event in the Events table"""
+        time = self.get_timestamp(cef) #We find the time of the event
+        list_event = self.get_event(time,cef) #structure formation in a table for recording events
+        event_id = self._event.set_row(list_event)#event record to the table events
+        return event_id,list_event[6] #id returns the user id and events (if the user does not return 0)
 
     def find_value(self,sign,extension):
-        """Поиск необходимого значения по признаку в поле Extension"""
+        """Search the desired value on the basis of field Extension"""
         ln = len(extension)
         st = extension.find(sign,0,ln)
         if st == -1 :
@@ -124,11 +124,11 @@ class Manager():
             return extension[st+1:end]
 
     def set_auth(self,event_id,user_id,extension):
-        """Записываем событие в таблицу auth"""
+        """Write the event to a table auth"""
         list_auth = []
 
         list_auth.append(event_id)
-        list_auth.append(user_id)#заноси id ползователя
+        list_auth.append(user_id)#enters user id
 
         result = self.find_value('ip',extension)
         if result == None:
@@ -146,9 +146,9 @@ class Manager():
         return 0
 
     def event_to_cef(self,event):
-        """Преобразовывает входное событие в формат cef для дальнейшей записи в БД"""
+        """It converts the original event format cef for further entries in the database"""
         cef = ""
-        idst = event.find("|",0,len(event))#поиск id агента
+        idst = event.find("|",0,len(event))#id search agent
         agent_id = int(event[:idst])
 
         if  not self._agents.isAgent(agent_id):
@@ -156,21 +156,21 @@ class Manager():
 
         event = event[idst+1:]
 
-        st1 = event.find("|",0,len(event)) # поиск в событии времени
-        st2 = event.find("|",st1+1,len(event)) # для поиска ip (начала)
+        st1 = event.find("|",0,len(event)) # Search in event time
+        st2 = event.find("|",st1+1,len(event)) #search ip (start)
 
         stmp = st2
         for i in range(0,3):
-            st3 = event.find("|",stmp+1,len(event))# поиск начала типа события
+            st3 = event.find("|",stmp+1,len(event))# Search for the beginning of the event type
             stmp = st3
 
-        st4 = event.find("|",st3+1,len(event))# поиск конца типа события
+        st4 = event.find("|",st3+1,len(event))# Search the end of the event type
 
-        type = self._event_type.find_type(event[st3+1:st4]) #поиск в бд тип данного сообщения
+        type = self._event_type.find_type(event[st3+1:st4]) #Search the database of this type of posts
         if type == None:
             return None
 
-        #выделение из события подлей для записи в extension
+        #selection of events to record in the meanest extension
         tmp = event[st4+1:]
         extens = ""
         for let in tmp:
@@ -183,7 +183,7 @@ class Manager():
         self.dispatcher(cef)
 
     def toCEF(self,event_id):
-        """Формирование сообщения CEF по event_id"""
+        """Formation posts by CEF event_id"""
         events = self._event.get_row(event_id)
         event_type = self._event.get_table_type(event_id)
 
@@ -206,7 +206,7 @@ class Manager():
         return cef
 
     def print_event_cef(self,event_id):
-        """Возвращает события в формате cef с отпределеного event_id (большего или равного)"""
+        """Gets the events in a certain format CEF event_id (greater than or equal)"""
         events = self._event.get_event_id(event_id)
         if events == None:
             return None
@@ -217,7 +217,7 @@ class Manager():
         return cef
 
     def processing_admin_panel(self,msg):
-        """обработка сообщения от панели администратора"""
+        """message processing from the admin panel"""
         st = msg.find(":",0,len(msg))+1
         id = int(msg[st:len(msg)])
         cef = self.print_event_cef(id)

@@ -1,6 +1,6 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
-# сервер tcp
+# server tcp
 
 import time
 import thread as thread
@@ -11,7 +11,7 @@ from Work_db import manager_db
 
 class Server():
     def __init__(self, myHost='', myPort=8080):
-        """Создание сокета"""
+        """creating socket"""
         self._sockobj = socket(AF_INET, SOCK_STREAM)
         self._sockobj.bind((myHost, myPort))
         self._sockobj.listen(5)
@@ -19,11 +19,11 @@ class Server():
 
 
     def __del__(self):
-        """Закрытие сокета"""
+        """closing socket"""
         self._sockobj.close()
 
     def dispecher(self):
-        """Прием клиентов и распределение их по потока обработки"""
+        """receiving clients and their distribution in the processing flow"""
         while True:
             connection, address = self._sockobj.accept()
             print('server connected by', address)
@@ -31,11 +31,11 @@ class Server():
             thread.start_new(self.handleClient, (connection, address,))
 
     def now(self):
-        """Получение текущего времени на сервере"""
+        """Getting the current time on the server"""
         return time.ctime(time.time())
 
     def change_host(self, str_cef, address):
-        """Замена в формате CEF поля host на IP адрес лиента"""
+        """Replacing format CEF field host to the IP address of the client"""
         tmp = str_cef
         if str_cef.find("CEF:",0,len(str_cef)) != -1:
             tmp = str_cef[:21] + str(address[0]) + str_cef[25:]
@@ -48,8 +48,8 @@ class Server():
 
 
     def handleClient(self, connection, address):
-        """Обработка запроса от одельного клиента"""
-        # time.sleep(5) #действия сервера
+        """Processing a request from an individual customer"""
+        # time.sleep(5) #server Action
         while True:
             try:
                 data = connection.recv(1024).decode("utf-8")
@@ -66,7 +66,7 @@ class Server():
 
 
             if type(result)==type(list()):
-                mutex.acquire() #блокировка на прерывание
+                mutex.acquire() #Lock interrupt
                 l = len(result)
                 reply = str(l)
                 connection.send(reply.encode("utf-8"))
@@ -74,7 +74,7 @@ class Server():
                     time.sleep(0.0025)
                     reply = line
                     connection.send(reply.encode("utf-8"))
-                mutex.release()# разрешение на прерывание
+                mutex.release()# permission to interrupt
             else:
                 reply = str(self.now())
                 connection.send(reply.encode("utf-8"))

@@ -1,12 +1,12 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
-#класс для работы с таблицей Users
+#class to work with the Users table
 
 import psycopg2
 
 class Users():
         def __init__(self):
-            """соединения с базой данных"""
+            """a database connection"""
             self._dbname = "'forensic'"
             self._user = "'us_users'"
             self._host = "'localhost'"
@@ -23,7 +23,7 @@ class Users():
                 self.err = 1
 
         def __del__(self):
-            #при уничтоении объекта закрывается соедениение
+            #when an object is destroyed the connection is closed
             try:
                 self._curr.close()
                 self._conn.close()
@@ -32,7 +32,7 @@ class Users():
 
 
         def out_table(self):
-            """получение из таблицы всех строк"""
+            """getting all the rows from a table"""
             try:
                 self._curr.execute("""select * from users""")
                 rows = self._curr.fetchall()
@@ -41,7 +41,7 @@ class Users():
             return rows
 
         def get_id(self,login):
-            # """получение id польззователя по логину"""
+            # """obtain a login user id"""
             st = "select user_id from users where login='"+login+"'"
             try:
                 self._curr.execute(st)

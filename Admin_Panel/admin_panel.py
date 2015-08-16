@@ -1,6 +1,6 @@
 #__author__ = 'Valentin'
  # -*- coding:utf-8 -*-
-#панель администратора
+#Admin Panel
 
 from Tkinter import *
 import ttk
@@ -9,7 +9,7 @@ import client
 
 
 class Panel(Frame):
-    """Реализация панели администратора"""
+    """Implementation of the admin panel"""
     def __init__(self,master):
         Frame.__init__(self,master)
         self._client = client.Client()
@@ -23,7 +23,7 @@ class Panel(Frame):
         self.info_exten = []
 
     def create_widgets(self):
-        """Создание виджета, в будущем расположение фильтров"""
+        """Create a widget in the future arrangement of filters"""
         self.but_update = Button(self,text="Обновить таблицу",command=self.update_server,anchor='center')
         self.but_clear = Button(self,text="Очистить таблицу",command=self.clear_table,anchor='center')
 
@@ -87,7 +87,7 @@ class Panel(Frame):
         self.but_apply_filter.grid(row=pos+12,column=1)
         self.but_clear_filter.grid(row=pos+12,column=2)
     def date2(self):
-        """Отвечает за отображение вторго поля даты"""
+        """Responsible for displaying the second date field"""
         if self.chekbox_val.get():
             self.leb_date['text'] = "Дата (от)"
             self.leb_date2 = Label(self, text="Дата (до)", anchor='center')
@@ -101,19 +101,19 @@ class Panel(Frame):
             self.en_date2 = None
 
     def update_server(self):
-        """отправляет и принимает запрос с сервара"""
+        """It sends and receives a request from the server"""
         self.send()
         self.recv()
         self._table_req.detach()
 
 
     def del_events(self):
-        """Очищает список событий"""
+        """Clears the list of events"""
         while len(self.events) != 0:
             item = self.events.pop()
 
     def del_info(self):
-        """Очищает список ПО для фильтра"""
+        """Clears the list of software to filter"""
         while len(self.info_prod) != 0:
             item = self.info_prod.pop()
 
@@ -124,14 +124,14 @@ class Panel(Frame):
             item = self.info_exten.pop()
 
     def clear_table(self):
-        """очистка таблицы"""
+        """cleaning table"""
         self._table_req.destroy()
         self.table()
         self.del_events()
         self.del_info()
 
     def apply_filter(self):
-        """Применение фильтров и вывод информации на таблицу"""
+        """Applying filters and output information to the table"""
         tmp = self.filter_date(self.events)
         tmp = self.filter_ip(tmp)
         tmp = self.filter_version(tmp)
@@ -146,7 +146,7 @@ class Panel(Frame):
         self.insert_table(tmp)
 
     def find_date(self,string,size):
-        """Ищет месяц/день/время/год и возвращает его"""
+        """Seeking a month / day / time / year and returns it"""
         if string == None:
             return None
         tmp = []
@@ -159,11 +159,11 @@ class Panel(Frame):
         return valu,tmp
 
     def parsing_date(self,date):
-        """Принимает строку с датой и разбирает ее"""
-        c = date.count(" ",0,len(date)) #подсчет количексва пробелов
+        """It takes a date string and parses it"""
+        c = date.count(" ",0,len(date)) #count the number of spaces
         st = 0
         tmp = []
-        #раздел строки на сотавляющие
+        #section on the line components
         for i in range(-1,c):
             end = date.find(" ",st,len(date))
             if end== -1:
@@ -171,7 +171,7 @@ class Panel(Frame):
             tmp.append(date[st:end])
             st = end+1
 
-        #определение необходимых значений
+        #definition of the required values
         month,tmp =self.find_date(tmp,3)
         day,tmp =self.find_date(tmp,2)
         time,tmp =self.find_date(tmp,8)
@@ -180,7 +180,7 @@ class Panel(Frame):
         return  month,day,time,year
 
     def filter_date(self,events):
-        """Филрътрация по месяцу"""
+        """Filter by month"""
         date = self.en_date.get()
         if date == "" or date==" ":
             return events
@@ -230,7 +230,7 @@ class Panel(Frame):
         # return self.filter(events,month,0)
 
     def filter_ip(self,events):
-        """Филрътрация по ip"""
+        """Filtering by ip"""
         try:
             ip = int(self.en_ip.get())
             return events
@@ -241,7 +241,7 @@ class Panel(Frame):
         return self.filter(events,ip,4)
 
     def filter_version(self,events):
-        """Фильтрует значение по версии cef"""
+        """Filters value version cef"""
         try:
             ver = int(self.en_version.get())
         except:
@@ -251,7 +251,7 @@ class Panel(Frame):
 
 
     def filter_product(self,events):
-        """Филрътрация по продукту"""
+        """Filtration Product"""
         prod = self.en_product['text']
         if prod =="" or prod == " ":
                 return events
@@ -260,7 +260,7 @@ class Panel(Frame):
 
 
     def filter_type(self,events):
-        """Фильтрует значение по типу"""
+        """Filters on the type of value"""
         type = self.en_type['text']
         if type =="" or type == " ":
             return events
@@ -268,7 +268,7 @@ class Panel(Frame):
         return self.filter(events,type,7)
 
     def filter_severity(self,events):
-        """Фильтрует значение по уровню угрозы"""
+        """Filters the value of the level of threat"""
         try:
             sev = int(self.en_severity.get())
         except:
@@ -277,7 +277,7 @@ class Panel(Frame):
         return self.filter(events,sev,11)
 
     def filter_extension(self,events):
-        """Фильтрация по дополнительному полю"""
+        """Filtering by custom field"""
         exten = self.en_exten["text"]
         if exten == "" or exten== " ":
             return events
@@ -285,7 +285,7 @@ class Panel(Frame):
         return self.filter(events,exten,12)
 
     def filter_agent(self,events):
-        """Фильтрует значение по уровню угрозы"""
+        """Filters the value of the level of threat"""
         try:
             agent = int(self.en_agent.get())
         except:
@@ -294,7 +294,7 @@ class Panel(Frame):
         return self.filter(events,agent,13)
 
     def filter(self,events,sign,pos):
-        """Фильтрация списка по признаку"""
+        """Filter the list on the basis of time"""
         tmp = []
         for line in events:
             si = line[pos]
@@ -312,7 +312,7 @@ class Panel(Frame):
         return tmp
 
     def filter_dates(self,events,date1,date2):
-        """Фильтрует события по дате(либо равно дате либо промежуток)"""
+        """Filters events by date (either the same date or period)"""
         print(date1,date2)
         tmp = []
         for line in events:
@@ -328,7 +328,7 @@ class Panel(Frame):
 
 
     def clear_filter(self):
-        """Очищает параметры фильтрации"""
+        """Clears the filtering options"""
         self.en_date.delete(0,len(self.en_date.get()))
         if self.en_date2 != None:
             self.en_date2.delete(0,len(self.en_date2.get()))
@@ -345,17 +345,17 @@ class Panel(Frame):
         self.insert_table(self.events)
 
     def table(self):
-        """Создание таблицы"""
+        """Create a table"""
         fr = ttk.Frame(self)
         fr.grid(row=0, column = 0,rowspan=20)
 
-        #создаем таблицу Treeview
+        #create table Treeview
         self._table_req = ttk.Treeview(fr, show='headings', selectmode='browse', height=10)
 
-        # задаем заголовки колонкам
+        # specified header columns
         self._table_req["columns"]=("Month","Day","Time","Year","IP","Version","Device Vendor","Device Product","Device Version",
                               "Signature ID","Name","Severity","Extension","Agent_id")
-        #выводим необходимые столбцы
+        #We derive the necessary columns
         self._table_req["displaycolumns"] = ("Month","Day","Time","Year","IP","Version","Device Vendor","Device Product","Device Version",
                                        "Signature ID","Name","Severity","Extension","Agent_id")
 
@@ -400,13 +400,13 @@ class Panel(Frame):
         self._table_req.grid(row=0, column=0, sticky=NSEW)
 
     def insert_table(self,events):
-        """Вставка в таблицу значений"""
+        """Insert the value table"""
         if events:
             for line in events:
                 self._table_req.insert('','end',values=line)
 
     def send(self):
-        """Отправка сообщение серверу"""
+        """Sending a message to the server"""
         if self._client.isConnect:
             msg = "admin_panel:"+str(len(self.events)+1)
             self._client.send_message(msg)
@@ -415,7 +415,7 @@ class Panel(Frame):
             print("Not connect server")
 
     def recv(self):
-        """Полуение ответа от сервера"""
+        """Getting a response from the server"""
         tmp = []
         msg = self._client.recv_message()
         l = int(msg)
@@ -428,19 +428,19 @@ class Panel(Frame):
         self.filling_info(tmp)
 
     def parsing_CEF(self,str_cef):
-         #Парсинг формата CEF на составляющие
+         #Parsing CEF format into components
         tmp = []
-        tmp.append(str_cef[:3]) # месяц
+        tmp.append(str_cef[:3]) # month
 
         if str_cef[4] == " ":
-           day = '0'+str_cef[5:6] #день
+           day = '0'+str_cef[5:6] #day
         else:
             day = str_cef[4:6]#день
 
         tmp.append(int(day))
-        tmp.append(str_cef[7:15]) # время
-        tmp.append(int(str_cef[16:20])) # год
-        tmp.append(str_cef[21:30]) # хост
+        tmp.append(str_cef[7:15]) # time
+        tmp.append(int(str_cef[16:20])) # year
+        tmp.append(str_cef[21:30]) # host
 
         ln = len(str_cef)
         st = str_cef.find(':',30,ln)+1
@@ -460,7 +460,7 @@ class Panel(Frame):
         return tmp
 
     def filling_info(self,events):
-        """Заполняет списоков для  фильтрации"""
+        """Fills List filtratsiiv"""
         if ""  not in  self.info_prod:
             self.info_prod.append("")
             self.info_type.append("")
@@ -483,7 +483,7 @@ class Panel(Frame):
 
 
     def filling_listbox_prod(self):
-        """Заполнение значениями linsbox"""
+        """Filling values linsbox"""
         if self.lis_prod == None:
             self.top = Toplevel(self)
             self.top.title("Список ПО")
@@ -513,11 +513,11 @@ class Panel(Frame):
             self.lis_prod=None
 
     def filling_leb_prod(self,event):
-        """Заполенение lab По значением"""
+        """Filling the lab by value"""
         self.en_product['text'] = self.lis_prod.get(self.lis_prod.curselection())
 
     def filling_listbox_type(self):
-        """Заполнение значениями linsbox"""
+        """Filling values linsbox"""
         if self.lis_type == None:
             self.top_type = Toplevel(self)
             self.top_type.title("Список типов")
@@ -547,11 +547,11 @@ class Panel(Frame):
             self.lis_type=None
 
     def filling_leb_type(self,event):
-        """Заполенение lab По значением"""
+        """Filling the lab by value"""
         self.en_type['text'] = self.lis_type.get(self.lis_type.curselection())
 
     def filling_listbox_exten(self):
-        """Заполнение значениями linsbox"""
+        """Filling values linsbox"""
         if self.lis_exten == None:
             self.top_exten = Toplevel(self)
             self.top_exten.title("Дополнительная инфо.")
@@ -581,7 +581,7 @@ class Panel(Frame):
             self.lis_exten = None
 
     def filling_leb_exten(self,event):
-        """Заполенение lab exten значением"""
+        """Filling lab exten value"""
         self.en_exten['text'] = self.lis_exten.get(self.lis_exten.curselection())
 
 root = Tk()

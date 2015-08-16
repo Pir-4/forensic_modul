@@ -1,13 +1,13 @@
 __author__ = 'Valentin'
 # -*- coding:utf-8 -*-
-#класс для работы с таблицей auth
+#class to work table auth
 
 import psycopg2
 
 
 class Auth():
      def __init__(self):
-         """соединения с базой данных"""
+         """a database connection"""
          self._dbname = "'forensic'"
          self._user = "'postgres'"
          self._host = "'localhost'"
@@ -24,7 +24,7 @@ class Auth():
              self.err = 1
 
      def __del__(self):
-         #при уничтоении объекта закрывается соедениение
+         #when an object is destroyed the connection is closed
          try:
             self._curr.close()
             self._conn.close()
@@ -32,7 +32,7 @@ class Auth():
              print("error disconnect Auth table")
 
      def out_table(self):
-         """получение из таблицы всех строк"""
+         """getting all the rows from a table"""
          try:
              self._curr.execute("""select * from auth""")
              rows = self._curr.fetchall()
@@ -41,7 +41,7 @@ class Auth():
          return rows
 
      def set_row(self,row):
-         """вставка строки в таблицу"""
+         """Inserting a row in a table"""
          str = "insert into auth (event_id,user_id,ip,result) " \
                "values (%s,%s,%s,%s);"
          try:
@@ -54,7 +54,7 @@ class Auth():
          return 0
 
      def get_info(self,event_id):
-         """Получение информации о об авторизации по event_id"""
+         """Getting information about the authorization of event_id"""
          st = "select us.login,au.result,au.ip " \
               "from auth as au join users as us " \
               "on au.user_id = us.user_id where au.event_id ="+str(event_id)
@@ -67,7 +67,7 @@ class Auth():
              return  row
 
      def get_cef(self,event_id):
-         """получение полей таблици в формате cef по event_id"""
+         """getting table fields in the format of cef event_id"""
          row = self.get_info(event_id)
          if row != None:
              cef = "user="+str(row[0])
